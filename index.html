@@ -19,7 +19,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   // Optional built-in Supabase configuration. Keep credentials in this page or leave blank for local fallback.
-  window.SOLVIX_SUPABASE_CONFIG = window.SOLVIX_SUPABASE_CONFIG || { url: 'https://jcpkgwbmalxhooxscpve.supabase.co', anonKey: 'sb_publishable_9Qg6FE8AYh88bM0kfgV_-g_rUemvzop' };
+  window.SOLVIX_SUPABASE_CONFIG = window.SOLVIX_SUPABASE_CONFIG || { url: '', anonKey: '' };
 </script>
 
 <style>
@@ -359,8 +359,29 @@ h1, h2, h3, h4 {
 .nav__logos img {
   height: 32px;
   width: auto;
+  max-width: 150px;
+  object-fit: contain;
   opacity: 0.95;
   transition: opacity 0.2s;
+}
+
+.brand-logo {
+  display: block;
+  width: auto;
+  object-fit: contain;
+}
+
+.brand-logo--aiml { height: 34px; max-width: 78px; }
+.brand-logo--jeppiaar { height: 32px; max-width: 150px; }
+.brand-logo--empowered { height: 30px; max-width: 122px; }
+.brand-divider {
+  color: var(--hair);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.nav__logos:hover img {
+  opacity: 1;
 }
 
 .nav__links {
@@ -483,11 +504,11 @@ h1, h2, h3, h4 {
 
 :root.intro .stage {
   display: block;
-  height: 104vh;
+  height: 100vh;
 }
 
 @media (max-width: 760px) {
-  :root.intro .stage { height: 102vh; }
+  :root.intro .stage { height: 100vh; }
 }
 
 .stage__sticky {
@@ -743,7 +764,25 @@ h1, h2, h3, h4 {
   flex-shrink: 0;
 }
 
-.mark {
+.hero__eyebrow {
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.hero__eyebrow::before {
+  display: none;
+}
+
+.hero__eyebrow .hero__register {
+  min-width: 220px;
+  padding: 15px 28px;
+  font-size: 16px;
+  box-shadow: 0 0 0 1px rgba(226, 225, 224, 0.22) inset, 0 14px 40px -10px var(--violet-glow);
+}
+
+.mark { 
   margin-top: 26px;
   display: flex;
   align-items: flex-start;
@@ -1475,8 +1514,18 @@ details p {
 
 @media (max-width: 700px) {
   .nav__in { gap: 12px; }
-  .nav__logos { gap: 10px; }
+  .nav__logos { gap: 8px; min-width: 0; }
+  .nav__logos .brand-logo--aiml { height: 27px; max-width: 58px; }
+  .nav__logos .brand-logo--jeppiaar { height: 25px; max-width: 96px; }
+  .nav__logos .brand-logo--empowered { height: 23px; max-width: 82px; }
+  .nav__logos .brand-divider { font-size: 16px; }
   .nav__right .chip { display: none; }
+}
+
+@media (max-width: 430px) {
+  .nav__logos .brand-logo--jeppiaar { max-width: 76px; }
+  .nav__logos .brand-logo--empowered { max-width: 68px; }
+  .nav__logos .brand-divider { display: none; }
 }
 
 :focus-visible {
@@ -1534,12 +1583,13 @@ try {
 <!-- ================= NAV ================= -->
 <header class="nav" id="nav" data-off="1">
   <div class="container nav__in">
-    <a href="index.html" class="nav__logos" style="text-decoration:none;">
-      <span style="font-family:var(--f-display); font-size:22px; color:var(--violet); letter-spacing:0.05em;">AI&amp;ML</span>
-      <span style="color:var(--hair); font-size:20px;">|</span>
-      <span style="font-family:var(--f-mono); font-size:11px; letter-spacing:0.1em; color:var(--bone);">JEPPIAAR</span>
-      <span style="color:var(--hair); font-size:20px;">&times;</span>
-      <span style="font-family:var(--f-body); font-weight:700; font-size:12px; letter-spacing:0.15em; color:#A45CF2;">EmpowerED</span>
+    <a href="index.html" class="nav__logos" style="text-decoration:none;" aria-label="AI and ML, Jeppiaar Engineering College, in collaboration with EmpowerED">
+      <!-- Replace these placeholder paths with your logo image files. -->
+      <img src="assets/aiml-logo.png" alt="AI &amp; ML" class="brand-logo brand-logo--aiml">
+      <span class="brand-divider" aria-hidden="true">|</span>
+      <img src="assets/jeppiaar-logo.png" alt="Jeppiaar Engineering College" class="brand-logo brand-logo--jeppiaar">
+      <span class="brand-divider" aria-hidden="true">&times;</span>
+      <img src="assets/empowered-logo.png" alt="EmpowerED" class="brand-logo brand-logo--empowered">
     </a>
     <nav class="nav__links">
       <a href="#rounds">Rounds</a>
@@ -1580,7 +1630,7 @@ try {
 <div class="hero">
   <div class="container hero__in">
     <div>
-      <p class="eyebrow" style="justify-content:center; text-align:center;"><a class="btn btn--primary btn--sm" href="register.html" style="margin-right:4px;">Register Now &nbsp;&rarr;</a> Dept. of AI &amp; ML, Jeppiaar Engineering College &nbsp;&times;&nbsp; EmpowerED</p>
+      <p class="eyebrow hero__eyebrow"><a class="btn btn--primary hero__register" href="register.html">Register Now &nbsp;&rarr;</a><span>Dept. of AI &amp; ML, Jeppiaar Engineering College &nbsp;&times;&nbsp; EmpowerED</span></p>
 
       <div class="mark">
         <div class="mark__type">
@@ -1943,12 +1993,12 @@ try {
 <!-- ================= FOOTER ================= -->
 <footer class="container foot">
   <div class="foot__top">
-    <div class="foot__logos">
-      <span style="font-family:var(--f-display); font-size:24px; color:var(--violet);">AI&amp;ML</span>
-      <span style="color:var(--hair); font-size:20px;">|</span>
-      <span style="font-family:var(--f-mono); font-size:12px; letter-spacing:0.1em; color:var(--bone);">JEPPIAAR</span>
-      <span style="color:var(--hair); font-size:20px;">&times;</span>
-      <span style="font-family:var(--f-body); font-weight:700; font-size:13px; letter-spacing:0.15em; color:#A45CF2;">EmpowerED</span>
+    <div class="foot__logos" aria-label="AI and ML, Jeppiaar Engineering College, in collaboration with EmpowerED">
+      <img src="assets/aiml-logo.png" alt="AI &amp; ML" class="brand-logo brand-logo--aiml">
+      <span class="brand-divider" aria-hidden="true">|</span>
+      <img src="assets/jeppiaar-logo.png" alt="Jeppiaar Engineering College" class="brand-logo brand-logo--jeppiaar">
+      <span class="brand-divider" aria-hidden="true">&times;</span>
+      <img src="assets/empowered-logo.png" alt="EmpowerED" class="brand-logo brand-logo--empowered">
     </div>
     <div class="social" aria-label="Social links">
       <a href="register.html" class="btn btn--ghost btn--sm">Register</a>
