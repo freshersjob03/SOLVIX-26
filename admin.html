@@ -16,7 +16,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   // Optional built-in Supabase configuration. Keep credentials in this page or leave blank for local fallback.
-  window.SOLVIX_SUPABASE_CONFIG = window.SOLVIX_SUPABASE_CONFIG || { url: 'https://jcpkgwbmalxhooxscpve.supabase.co', anonKey: 'sb_publishable_9Qg6FE8AYh88bM0kfgV_-g_rUemvzop' };
+  window.SOLVIX_SUPABASE_CONFIG = window.SOLVIX_SUPABASE_CONFIG || { url: '', anonKey: '' };
 </script>
 
 <style>
@@ -1475,7 +1475,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
     detailModal?.classList.remove('active');
   });
 
-  // Export to CSV
+  // Export every team and participant detail except ID-card and payment-proof URLs.
   exportCsvBtn?.addEventListener('click', function() {
     if (allTeams.length === 0) {
       alert('No registrations available to export.');
@@ -1483,60 +1483,84 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
     }
 
     const headers = [
-      'Registration ID',
-      'Team Name',
-      'College Name',
-      'Team Size',
-      'Status',
-      'Leader Name',
-      'Leader Email',
-      'Leader Phone',
-      'Member 2 Name',
-      'Member 2 Phone',
-      'Member 3 Name',
-      'Member 3 Phone',
-      'Transaction ID',
-      'WhatsApp Joined',
-      'Created At'
+      'Registration ID', 'Team Name', 'Team Size', 'Status', 'Created At',
+      'Transaction ID', 'WhatsApp Joined',
+      'Participant Number', 'Participant Role', 'Participant Name',
+      'Participant Email', 'Participant Phone', 'Year of Study',
+      'College / University', 'Department', 'Parent / Guardian Phone',
+      'HOD / In-charge Phone'
     ];
 
-    const rows = allTeams.map(function(t) {
-      const regId = t.registration_id || t.id;
-      const college = t.leader_college || t.college_name || '';
-      const leaderPhone = t.leader_mobile || t.leader_phone || '';
-      // The leader is stored separately; members contains the remaining participants
-      // after the Supabase query is normalized below.
-      const members = (t.members || []).filter(function(m) {
-        return (m.member_name || m.name || '') !== (t.leader_name || '');
-      });
-      const m2 = members[0] || {};
-      const m3 = members[1] || {};
+    function csvValue(value) {
+      const text = value === null || value === undefined ? '' : String(value);
+      return '"' + text.replace(/"/g, '""') + '"';
+    }
 
-      return [
-        regId,
-        `"${(t.team_name || '').replace(/"/g, '""')}"`,
-        `"${college.replace(/"/g, '""')}"`,
-        t.team_size,
-        t.status,
-        `"${(t.leader_name || '').replace(/"/g, '""')}"`,
-        t.leader_email,
-        leaderPhone,
-        `"${(m2.member_name || m2.name || '').replace(/"/g, '""')}"`,
-        m2.mobile || m2.phone || '',
-        `"${(m3.member_name || m3.name || '').replace(/"/g, '""')}"`,
-        m3.mobile || m3.phone || '',
-        `"${(t.transaction_id || '').replace(/"/g, '""')}"`,
-        t.whatsapp_joined ? 'Yes' : 'No',
-        t.created_at
-      ];
+    const rows = [];
+    allTeams.forEach(function(t) {
+      const members = Array.isArray(t.members) ? t.members : [];
+      const leader = {
+        name: t.leader_name || '',
+        email: t.leader_email || '',
+        phone: t.leader_mobile || t.leader_phone || '',
+        year: t.leader_year || t.leader_study_year || '',
+        college: t.leader_college || t.college_name || '',
+        department: t.leader_department || '',
+        parentPhone: t.leader_parent_mobile || t.leader_parent_phone || '',
+        hodPhone: t.leader_incharge_mobile || t.leader_hod_mobile || t.leader_hod_phone || ''
+      };
+
+      // Supabase returns the leader in team_members; local fallback data may not.
+      const participantRows = [{ participant: leader, role: 'Team Leader' }];
+      members.forEach(function(m) {
+        const isLeader = m.is_leader === true || m.is_leader === 'true';
+        const memberName = m.name || m.member_name || '';
+        if (isLeader || memberName === leader.name) return;
+        participantRows.push({
+          participant: {
+            name: memberName,
+            email: m.email || '',
+            phone: m.phone || m.mobile || '',
+            year: m.year || m.study_year || '',
+            college: m.college || '',
+            department: m.department || '',
+            parentPhone: m.parent_mobile || m.parent_phone || '',
+            hodPhone: m.incharge_mobile || m.hod_mobile || m.hod_phone || ''
+          },
+          role: 'Member'
+        });
+      });
+
+      participantRows.forEach(function(entry, index) {
+        const p = entry.participant;
+        rows.push([
+          t.registration_id || t.id || '',
+          t.team_name || '',
+          t.team_size || '',
+          t.status || '',
+          t.created_at || '',
+          t.transaction_id || '',
+          t.whatsapp_joined ? 'Yes' : 'No',
+          index + 1,
+          entry.role,
+          p.name,
+          p.email,
+          p.phone,
+          p.year,
+          p.college,
+          p.department,
+          p.parentPhone,
+          p.hodPhone
+        ].map(csvValue).join(','));
+      });
     });
 
-    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const csvContent = '\uFEFF' + [headers.map(csvValue).join(','), ...rows].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `SOLVIX26_Registrations_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.href = url;
+    link.download = `SOLVIX26_All_Participants_${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
