@@ -372,7 +372,14 @@ h1, h2, h3, h4 {
 }
 
 .brand-logo--aiml { height: 44px; max-width: 108px; }
-.brand-logo--jeppiaar { height: 42px; max-width: 185px; }
+.brand-logo--jeppiaar {
+  height: 76px;
+  max-width: 300px;
+  transform: scale(1.22);
+  transform-origin: center;
+  position: relative;
+  z-index: 1;
+}
 .brand-logo--empowered { height: 40px; max-width: 155px; }
 .brand-divider {
   color: var(--hair);
@@ -1479,6 +1486,13 @@ details p {
   flex-wrap: wrap;
 }
 
+/* Keep the footer college logo compact without changing the header logo. */
+.foot__logos .brand-logo--jeppiaar {
+  height: 48px;
+  max-width: 190px;
+  transform: none;
+}
+
 .social {
   display: flex;
   gap: 9px;
@@ -1516,7 +1530,11 @@ details p {
   .nav__in { gap: 12px; }
   .nav__logos { gap: 8px; min-width: 0; }
   .nav__logos .brand-logo--aiml { height: 34px; max-width: 78px; }
-  .nav__logos .brand-logo--jeppiaar { height: 32px; max-width: 125px; }
+  .nav__logos .brand-logo--jeppiaar {
+    height: 58px;
+    max-width: 210px;
+    transform: scale(1.16);
+  }
   .nav__logos .brand-logo--empowered { height: 30px; max-width: 105px; }
   .nav__logos .brand-divider { font-size: 16px; }
   .nav__right .chip { display: none; }
@@ -1524,7 +1542,11 @@ details p {
 
 @media (max-width: 430px) {
   .nav__logos .brand-logo--aiml { height: 30px; max-width: 68px; }
-  .nav__logos .brand-logo--jeppiaar { height: 29px; max-width: 105px; }
+  .nav__logos .brand-logo--jeppiaar {
+    height: 50px;
+    max-width: 180px;
+    transform: scale(1.12);
+  }
   .nav__logos .brand-logo--empowered { height: 27px; max-width: 92px; }
   .nav__logos .brand-divider { display: none; }
 }
@@ -1588,7 +1610,7 @@ try {
       <!-- Replace these placeholder paths with your logo image files. -->
       <img src="https://i.ibb.co/TMbVhPWr/dept-logo.png" alt="AI &amp; ML" class="brand-logo brand-logo--aiml">
       <span class="brand-divider" aria-hidden="true">|</span>
-      <img src="https://i.ibb.co/1JQjhKBQ/clg-logo-yellow.png" alt="Jeppiaar Engineering College" class="brand-logo brand-logo--jeppiaar">
+      <img src="https://i.ibb.co/TxDQjWpD/clg-logo-autonomous.png" alt="Jeppiaar Engineering College" class="brand-logo brand-logo--jeppiaar">
       <span class="brand-divider" aria-hidden="true">&times;</span>
       <img src="https://i.ibb.co/Kvykptr/Chat-GPT-Image-Sep-8-2026-05-55-32-PM.png" alt="EmpowerED" class="brand-logo brand-logo--empowered">
     </a>
@@ -1997,7 +2019,7 @@ try {
     <div class="foot__logos" aria-label="AI and ML, Jeppiaar Engineering College, in collaboration with EmpowerED">
       <img src="https://i.ibb.co/TMbVhPWr/dept-logo.png" alt="AI &amp; ML" class="brand-logo brand-logo--aiml">
       <span class="brand-divider" aria-hidden="true">|</span>
-      <img src="https://i.ibb.co/4wknFNWD/8cc2481a-8c02-489f-8191-a763834ad702.png" alt="Jeppiaar Engineering College" class="brand-logo brand-logo--jeppiaar">
+      <img src="https://i.ibb.co/TxDQjWpD/clg-logo-autonomous.png" alt="Jeppiaar Engineering College" class="brand-logo brand-logo--jeppiaar">
       <span class="brand-divider" aria-hidden="true">&times;</span>
       <img src="https://i.ibb.co/Kvykptr/Chat-GPT-Image-Sep-8-2026-05-55-32-PM.png" alt="EmpowerED" class="brand-logo brand-logo--empowered">
     </div>
