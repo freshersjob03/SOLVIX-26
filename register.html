@@ -3,8 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Admin Dashboard — SOLVIX'26 | HackRush 2K26</title>
-<meta name="description" content="Coordinator & Admin Management Portal for SOLVIX'26 24-hour hackathon.">
+<title>Register Team — SOLVIX'26 | HackRush 2K26</title>
+<meta name="description" content="Register your team for SOLVIX'26 24-hour hackathon. Teams of 2 or 3. Dept. of AI & ML, Jeppiaar Engineering College in collaboration with EmpowerED.">
+<meta property="og:title" content="Register Team — SOLVIX'26 | HackRush 2K26">
+<meta property="og:description" content="Official Registration Portal for SOLVIX'26 24-hour national hackathon.">
+<meta property="og:type" content="website">
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23000000'/%3E%3Ctext x='50' y='50' dy='.36em' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='74' fill='%239040ED'%3ES%3C/text%3E%3C/svg%3E">
@@ -12,17 +15,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=Azeret+Mono:wght@400;500&display=swap">
 
-<!-- Supabase CDN for live database sync if configured -->
+<!-- Supabase CDN & Canvas Confetti CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   // Optional built-in Supabase configuration. Keep credentials in this page or leave blank for local fallback.
-  window.SOLVIX_SUPABASE_CONFIG = window.SOLVIX_SUPABASE_CONFIG || { url: '', anonKey: '' };
+  window.SOLVIX_SUPABASE_CONFIG = window.SOLVIX_SUPABASE_CONFIG || { url: 'https://jcpkgwbmalxhooxscpve.supabase.co', anonKey: 'sb_publishable_9Qg6FE8AYh88bM0kfgV_-g_rUemvzop' };
 </script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
 <style>
 /* ==========================================================================
-   SOLVIX'26 / HACKRUSH 2K26 — STANDALONE ADMIN STYLESHEET
-   Self-contained: tokens, resets, cards, tables, badges, modals, animations
+   SOLVIX'26 / HACKRUSH 2K26 — STANDALONE REGISTRATION PAGE STYLESHEET
+   Self-contained: tokens, resets, cards, form sections, inputs, dropzones, modals
    ========================================================================== */
 :root {
   --void: #000000;
@@ -35,45 +39,59 @@
   --border-subtle: rgba(226, 225, 224, 0.06);
   --border-focus: #9040ed;
   --r-card: 16px;
+  --assemble: 1;
+  --navshow: 1;
   --violet: #9040ed;
   --violet-lo: #5b2a96;
   --violet-glow: rgba(144, 64, 237, 0.38);
   --bone: #e2e1e0;
   --ash: #8e88a0;
-  --ash-dim: #605973;
-  --hair: rgba(226, 225, 224, 0.08);
-  --hair-2: rgba(226, 225, 224, 0.05);
-  --emerald: #10B981;
-  --amber: #F59E0B;
-  --crimson: #EF4444;
-  --f-display: 'Anton', impact, sans-serif;
-  --f-body: 'Archivo', system-ui, -apple-system, sans-serif;
-  --f-mono: 'Azeret Mono', monospace;
+  --ash-dim: #5d5771;
+  --hair: rgba(226, 225, 224, 0.11);
+  --hair-2: rgba(226, 225, 224, 0.06);
+  --amber: #e8a317;
+  --emerald: #10b981;
+  --crimson: #ef4444;
+  --glass: rgba(226, 225, 224, 0.028);
+  --glass-edge: rgba(226, 225, 224, 0.13);
+
+  --f-display: 'Anton', 'Oswald', 'Arial Narrow', Impact, sans-serif;
+  --f-body: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --f-mono: 'Azeret Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --page: 1200px;
+  --gut: clamp(20px, 5vw, 64px);
 }
 
-*, *::before, *::after {
+* {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  font-size: 16px;
-  scroll-behavior: smooth;
-  background-color: var(--void);
-  color: var(--bone);
-  font-family: var(--f-body);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  min-height: 100vh;
-  background-color: var(--void);
+  margin: 0;
+  background: var(--ink);
   color: var(--bone);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
-  position: relative;
-  line-height: 1.5;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+h1, h2, h3, h4 {
+  margin: 0;
+  text-wrap: balance;
+  font-weight: 600;
+  line-height: 1.08;
 }
 
 /* Background Atmosphere */
@@ -81,95 +99,170 @@ body {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: -2;
-  background: 
-    radial-gradient(ellipse 65% 50% at 50% -10%, rgba(144, 64, 237, 0.18), transparent 70%),
-    radial-gradient(ellipse 50% 40% at 85% 90%, rgba(91, 42, 150, 0.12), transparent 60%),
-    #000000;
+  z-index: 0;
+}
+
+.hue::before, .hue::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+}
+
+.hue::before {
+  width: 120vw;
+  height: 70vh;
+  left: -20vw;
+  top: -32vh;
+  background: radial-gradient(circle at 50% 50%, rgba(144, 64, 237, 0.20), rgba(144, 64, 237, 0.05) 45%, transparent 70%);
+}
+
+.hue::after {
+  width: 90vw;
+  height: 60vh;
+  right: -30vw;
+  bottom: -25vh;
+  background: radial-gradient(circle at 50% 50%, rgba(91, 42, 150, 0.16), transparent 68%);
 }
 
 .grain {
   position: fixed;
   inset: 0;
+  z-index: 1;
   pointer-events: none;
-  z-index: -1;
-  opacity: 0.025;
-  background-image: radial-gradient(#fff 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-/* Typography Helpers */
-.eyebrow {
-  font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--violet);
-  margin-bottom: 6px;
-  font-weight: 500;
-}
-
-.mono {
-  font-family: var(--f-mono);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
 }
 
 .container {
-  max-width: 1240px;
-  margin-inline: auto;
-  padding-inline: 20px;
+  max-width: var(--page);
+  margin: 0 auto;
+  padding-inline: var(--gut);
 }
 
-/* Navigation */
+/* Nav */
 .nav {
-  position: fixed;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
-  z-index: 90;
-  background: rgba(6, 5, 11, 0.82);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--border-subtle);
-  padding: 12px 0;
+  z-index: 40;
+  border-bottom: 1px solid transparent;
+  transition: 0.3s;
+}
+
+.nav.stuck {
+  background: rgba(6, 5, 11, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom-color: var(--hair);
 }
 
 .nav__in {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  gap: 22px;
+  padding-block: 12px;
 }
 
 .nav__logos {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
+  flex-shrink: 0;
   text-decoration: none;
 }
 
 .nav__links {
-  display: flex;
-  align-items: center;
-  gap: 20px;
+  display: none;
+  gap: 24px;
+  margin-left: auto;
+  font-size: 13.5px;
+  color: var(--ash);
 }
 
 .nav__links a {
-  color: var(--ash);
   text-decoration: none;
-  font-size: 13.5px;
-  transition: color 0.15s ease;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
-.nav__links a:hover {
+.nav__links a:hover, .nav__links a.active {
   color: var(--bone);
 }
 
 .nav__right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.nav__links + .nav__right {
+  margin-left: 0;
+}
+
+@media (min-width: 860px) {
+  .nav__links { display: flex; }
+}
+
+/* Glass & Cards */
+.glass {
+  position: relative;
+  background: var(--glass);
+  border: 1px solid var(--glass-edge);
+  border-radius: 16px;
+  overflow: hidden;
+  isolation: isolate;
+  transition: border-color 0.35s ease, transform 0.35s cubic-bezier(0.2, 0.7, 0.3, 1), background 0.35s ease;
+}
+
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(226, 225, 224, 0.07), transparent 42%);
+}
+
+.card {
+  padding: clamp(20px, 3vw, 30px);
+}
+
+/* Chips & Badges */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--hair);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--ash);
+  white-space: nowrap;
+  background: rgba(226, 225, 224, 0.02);
+}
+
+.chip b {
+  color: var(--amber);
+  font-weight: 500;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 0 3px rgba(232, 163, 23, 0.16);
+}
+
+.dot--live {
+  background: var(--emerald);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
 
 /* Buttons */
@@ -177,357 +270,480 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 18px;
-  border-radius: 9999px;
-  font-size: 13px;
+  gap: 9px;
+  padding: 13px 22px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-family: var(--f-body);
+  font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
+  letter-spacing: 0.01em;
   text-decoration: none;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  transition: 0.28s ease;
   white-space: nowrap;
 }
 
 .btn--primary {
-  background: var(--violet);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 0 20px var(--violet-glow);
+  background: linear-gradient(180deg, #a45cf2, var(--violet));
+  color: #0b0512;
+  box-shadow: 0 0 0 1px rgba(226, 225, 224, 0.18) inset, 0 10px 34px -12px var(--violet-glow);
 }
 
 .btn--primary:hover {
-  background: #9f54f7;
-  transform: translateY(-1px);
-  box-shadow: 0 0 26px rgba(144, 64, 237, 0.5);
+  box-shadow: 0 0 0 1px rgba(226, 225, 224, 0.34) inset, 0 14px 44px -10px var(--violet-glow);
+  transform: translateY(-2px);
 }
 
 .btn--ghost {
-  background: rgba(226, 225, 224, 0.04);
+  border-color: var(--glass-edge);
   color: var(--bone);
-  border: 1px solid var(--border);
+  background: var(--glass);
 }
 
 .btn--ghost:hover {
-  background: rgba(226, 225, 224, 0.09);
-  border-color: rgba(226, 225, 224, 0.25);
-  color: #fff;
+  border-color: rgba(226, 225, 224, 0.42);
+  transform: translateY(-2px);
 }
 
 .btn--sm {
-  padding: 6px 14px;
-  font-size: 12px;
+  padding: 8px 16px;
+  font-size: 13px;
 }
 
-/* Chips & Badges */
-.chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 9px;
-  border-radius: 9999px;
+/* Typography & Eyebrows */
+.eyebrow {
   font-family: var(--f-mono);
   font-size: 11px;
-  background: rgba(226, 225, 224, 0.06);
-  border: 1px solid var(--border-subtle);
-  color: var(--ash);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ash-dim);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-.dot {
-  width: 6px;
-  height: 6px;
+.eyebrow::before {
+  content: '';
+  width: 26px;
+  height: 1px;
+  background: var(--violet-lo);
+  flex-shrink: 0;
+}
+
+/* Registration Header & Sections */
+.reg-hero {
+  padding: 120px 0 36px;
+  position: relative;
+}
+
+.form-section {
+  margin-bottom: 32px;
+  padding: clamp(20px, 3.5vw, 32px);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  position: relative;
+  overflow: hidden;
+}
+
+.form-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(144, 64, 237, 0.5), transparent);
+}
+
+.sec-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--f-display);
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bone);
+  margin-bottom: 20px;
+}
+
+.sec-badge {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
   border-radius: 50%;
-  display: inline-block;
-  background: var(--ash);
+  background: rgba(144, 64, 237, 0.2);
+  border: 1px solid var(--violet);
+  color: var(--violet);
+  font-family: var(--f-mono);
+  font-size: 13px;
+  font-weight: 700;
 }
 
-.dot--live {
-  background: var(--emerald);
-  box-shadow: 0 0 8px var(--emerald);
+/* Notices & Alerts */
+.notice {
+  display: flex;
+  gap: 11px;
+  padding: 13px 15px;
+  border-radius: 12px;
+  margin-bottom: 22px;
+  background: rgba(232, 163, 23, 0.07);
+  border: 1px solid rgba(232, 163, 23, 0.26);
+  font-size: 13.5px;
+  color: #f0ce8b;
+  line-height: 1.5;
 }
 
-/* Fields & Inputs */
-.field {
-  margin-bottom: 16px;
+.notice--info {
+  background: rgba(144, 64, 237, 0.09);
+  border-color: rgba(144, 64, 237, 0.35);
+  color: #d8b4fe;
+}
+
+.notice--error {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.notice--success {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #a7f3d0;
+}
+
+/* Team Size Selector */
+.size-picker {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.size-option {
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  background: rgba(22, 22, 26, 0.6);
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  text-align: left;
+  user-select: none;
 }
 
-.field label {
-  font-size: 12px;
-  font-family: var(--f-mono);
-  color: var(--ash);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+.size-option:hover {
+  border-color: rgba(144, 64, 237, 0.5);
+  background: rgba(30, 30, 36, 0.8);
 }
 
-.field input,
-.field select,
-.filter-bar input,
-.filter-bar select {
-  background: rgba(14, 12, 22, 0.85);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 11px 14px;
+.size-option.active {
+  border-color: var(--violet);
+  background: rgba(144, 64, 237, 0.12);
+  box-shadow: 0 0 24px rgba(144, 64, 237, 0.2);
+}
+
+.size-option .size-title {
+  font-family: var(--f-display);
+  font-size: 20px;
+  letter-spacing: 0.03em;
   color: var(--bone);
-  font-family: var(--f-body);
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.field input:focus,
-.field select:focus,
-.filter-bar input:focus,
-.filter-bar select:focus {
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px rgba(144, 64, 237, 0.2);
+.size-option .size-desc {
+  font-size: 13px;
+  color: var(--ash);
+}
+
+/* Member Boxes */
+.member-box {
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(18, 18, 22, 0.6);
+  margin-bottom: 20px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.member-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.member-title {
+  font-family: var(--f-display);
+  font-size: 18px;
+  color: var(--bone);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.member-role-badge {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  background: rgba(144, 64, 237, 0.2);
+  color: var(--violet);
+  border: 1px solid rgba(144, 64, 237, 0.3);
+}
+
+/* Input Fields */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+
+.req {
+  color: var(--crimson);
+  font-weight: bold;
 }
 
 .error-msg {
   color: var(--crimson);
-  font-size: 12px;
-  margin-top: 4px;
-}
-
-/* Login Wrapper */
-.admin-login-wrap {
-  min-height: 85vh;
-  display: grid;
-  place-items: center;
-  padding: 100px 16px 40px;
-}
-
-.admin-login-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--r-card);
-  padding: clamp(28px, 4vw, 38px);
-  max-width: 440px;
-  width: 100%;
-  box-shadow: 0 16px 48px -12px rgba(0, 0, 0, 0.7), 0 0 36px -8px var(--violet-glow);
-  position: relative;
-  overflow: hidden;
-}
-
-.admin-login-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--violet), transparent);
-}
-
-/* Stat Cards */
-.stat-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--r-card);
-  padding: 22px 24px;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.2s ease, border-color 0.2s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(144, 64, 237, 0.35);
-}
-
-.stat-card::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 2px;
-  background: var(--violet);
-  opacity: 0.6;
-}
-
-.stat-k {
+  font-size: 11.5px;
   font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  min-height: 14px;
+  display: block;
+}
+
+label {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ash);
+  margin-bottom: 4px;
+}
+
+input[type="text"],
+input[type="tel"],
+input[type="email"],
+input[type="password"],
+select,
+textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 11px;
+  background: rgba(226, 225, 224, 0.035);
+  border: 1px solid var(--hair);
+  color: var(--bone);
+  font-family: var(--f-body);
+  font-size: 15px;
+  transition: 0.22s;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--violet);
+  background: rgba(144, 64, 237, 0.09);
+  box-shadow: 0 0 0 3px rgba(144, 64, 237, 0.16);
+}
+
+input.invalid, select.invalid {
+  border-color: var(--crimson);
+  background: rgba(239, 68, 68, 0.06);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--ash-dim);
+}
+
+select {
+  appearance: none;
+  color-scheme: dark;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ash) 50%), linear-gradient(135deg, var(--ash) 50%, transparent 50%);
+  background-position: calc(100% - 19px) 50%, calc(100% - 14px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+select option {
+  background: var(--ink-2);
+  color: var(--bone);
+}
+
+/* File Dropzones */
+.file-dropzone {
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  background: rgba(14, 14, 18, 0.5);
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+
+.file-dropzone:hover, .file-dropzone.dragover {
+  border-color: var(--violet);
+  background: rgba(144, 64, 237, 0.08);
+}
+
+.file-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  margin-top: 10px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+}
+
+.file-preview .file-name {
+  color: var(--bone);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 280px;
+}
+
+/* Bank Details Box */
+.bank__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--hair-2);
+}
+
+.bank__row:first-of-type {
+  border-top: 0;
+}
+
+.bank__k {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ash-dim);
   margin: 0;
 }
 
-.stat-v {
-  font-family: var(--f-display);
-  font-size: 38px;
-  line-height: 1.1;
-  color: var(--bone);
-  margin: 8px 0 0;
+.bank__v {
+  font-size: 14.5px;
+  margin-top: 3px;
+  margin-bottom: 0;
+  word-break: break-word;
 }
 
-.stat-sub {
-  font-size: 12px;
-  color: var(--ash-dim);
-  margin: 4px 0 0;
-}
-
-/* Filter Bar */
-.filter-bar {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--r-card);
-  padding: 16px 20px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-
-/* Table */
-.tbl-wrap {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--r-card);
-  overflow-x: auto;
-  margin-bottom: 40px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-}
-
-.reg-tbl {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13.5px;
-  text-align: left;
-}
-
-.reg-tbl th {
-  background: rgba(255, 255, 255, 0.03);
-  padding: 14px 16px;
+.bank__v.mono {
   font-family: var(--f-mono);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.copy {
+  flex-shrink: 0;
+  border: 1px solid var(--hair);
+  background: transparent;
   color: var(--ash);
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-
-.reg-tbl td {
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  color: var(--bone);
-  vertical-align: middle;
-}
-
-.reg-tbl tr:hover td {
-  background: rgba(144, 64, 237, 0.05);
-}
-
-/* Status Badges */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 11px;
-  border-radius: 9999px;
-  font-family: var(--f-mono);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: 600;
-}
-
-.status-badge.verified,
-.status-badge.approved {
-  background: rgba(16, 185, 129, 0.14);
-  color: #10B981;
-  border: 1px solid rgba(16, 185, 129, 0.32);
-}
-
-.status-badge.pending {
-  background: rgba(245, 158, 11, 0.14);
-  color: #F59E0B;
-  border: 1px solid rgba(245, 158, 11, 0.32);
-}
-
-.status-badge.rejected {
-  background: rgba(239, 68, 68, 0.14);
-  color: #EF4444;
-  border: 1px solid rgba(239, 68, 68, 0.32);
-}
-
-/* Action Buttons */
-.action-btn-group {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.action-icon-btn {
-  padding: 6px 11px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 500;
   cursor: pointer;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.04);
+  border-radius: 9px;
+  padding: 7px 11px;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  transition: 0.22s;
+}
+
+.copy:hover {
+  border-color: var(--violet);
   color: var(--bone);
-  transition: all 0.18s ease;
+}
+
+.copy.done {
+  color: var(--emerald);
+  border-color: var(--emerald);
+}
+
+/* WhatsApp Box */
+.whatsapp-box {
+  background: linear-gradient(135deg, rgba(37, 211, 102, 0.08), rgba(18, 140, 126, 0.04));
+  border: 1px solid rgba(37, 211, 102, 0.3);
+}
+
+.whatsapp-btn {
+  background: #25d366;
+  color: #000;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 10px;
+  padding: 12px 22px;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.action-icon-btn:hover {
-  background: var(--violet);
-  border-color: var(--violet);
-  color: #fff;
-}
-
-.action-icon-btn.btn-approve:hover {
-  background: var(--emerald);
-  border-color: var(--emerald);
+.whatsapp-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 20px rgba(37, 211, 102, 0.4);
   color: #000;
 }
 
-.action-icon-btn.btn-reject:hover {
-  background: var(--crimson);
-  border-color: var(--crimson);
-  color: #fff;
-}
-
-/* Modals */
-#detailModal, #sqlModal, #supaConfigModal {
+/* Success Modal */
+#successModal {
   display: none;
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   z-index: 1000;
   overflow-y: auto;
   padding: 40px 16px;
 }
 
-#detailModal.active, #sqlModal.active, #supaConfigModal.active {
+#successModal.active {
   display: grid;
   place-items: center;
 }
 
-.detail-card {
-  background: #110f1a;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  max-width: 740px;
+.success-card {
+  background: #11101a;
+  border: 1px solid rgba(144, 64, 237, 0.5);
+  box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.8), 0 0 50px rgba(144, 64, 237, 0.3);
+  border-radius: 20px;
+  max-width: 680px;
   width: 100%;
-  padding: clamp(24px, 3.5vw, 34px);
+  padding: clamp(24px, 4vw, 36px);
+  text-align: left;
   position: relative;
-  box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.8), 0 0 34px -8px var(--violet-glow);
 }
 
-.facts__k {
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 14px;
+}
+
+.summary-row .label {
+  color: var(--ash);
+}
+
+.summary-row .val {
+  color: var(--bone);
   font-family: var(--f-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ash-dim);
+  font-weight: 500;
 }
 
 @keyframes spin {
@@ -535,9 +751,17 @@ body {
   to { transform: rotate(360deg); }
 }
 
-@media (max-width: 800px) {
-  .nav__links { display: none; }
-  .filter-bar { flex-direction: column; align-items: stretch; }
+@media print {
+  body * { visibility: hidden; }
+  #successModal, #successModal * { visibility: visible; }
+  #successModal { position: absolute; left: 0; top: 0; width: 100%; background: #fff; color: #000; }
+  .btn, .whatsapp-btn { display: none !important; }
+}
+
+@media (max-width: 640px) {
+  .size-picker { grid-template-columns: 1fr; }
+  .summary-row { flex-direction: column; gap: 4px; }
+  .summary-row .val { text-align: left; }
 }
 </style>
 </head>
@@ -547,7 +771,7 @@ body {
 <div class="grain"></div>
 
 <!-- ================= NAV ================= -->
-<header class="nav" id="nav">
+<header class="nav stuck" id="nav">
   <div class="container nav__in">
     <a href="index.html" class="nav__logos">
       <span style="font-family:var(--f-display); font-size:22px; color:var(--violet);">AI&amp;ML</span>
@@ -557,1136 +781,1084 @@ body {
       <span style="font-family:var(--f-body); font-weight:700; font-size:12px; letter-spacing:0.15em; color:#A45CF2;">EmpowerED</span>
     </a>
     <nav class="nav__links">
-      <a href="index.html">Main Website</a>
-      <a href="register.html">Registration Form</a>
-      <span class="chip" style="background:rgba(144,64,237,0.2); color:var(--violet); font-size:11px;">Admin Console</span>
+      <a href="index.html#rounds">Rounds</a>
+      <a href="index.html#timeline">24 Hours</a>
+      <a href="index.html#rules">Rules</a>
+      <a href="index.html#venue">Venue</a>
+      <a href="admin.html" style="color:var(--ash-dim);">Admin Portal</a>
     </nav>
     <div class="nav__right">
-      <button id="logoutBtn" class="btn btn--ghost btn--sm" style="display:none;">Sign Out</button>
-      <a class="btn btn--primary btn--sm" href="register.html">Add Team</a>
+      <a class="btn btn--ghost btn--sm" href="index.html">&larr; Back to Overview</a>
     </div>
   </div>
 </header>
 
-<!-- ================= LOGIN SECTION ================= -->
-<div id="loginView" class="admin-login-wrap">
-  <div class="admin-login-card">
-    <div style="text-align:center; margin-bottom:24px;">
-      <div style="width:52px; height:52px; border-radius:50%; background:rgba(144, 64, 237, 0.15); border:1px solid var(--violet); color:var(--violet); display:grid; place-items:center; margin:0 auto 14px;">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      </div>
-      <p class="eyebrow" style="margin:0;">Coordinator Authentication</p>
-      <h2 style="font-family:var(--f-display); font-size:28px; margin:4px 0;">SOLVIX'26 Admin</h2>
-      <p style="color:var(--ash); font-size:13.5px; margin-top:6px;">Restricted to Dept. of AI &amp; ML coordinators and organizers.</p>
+<!-- ================= REGISTRATION HERO ================= -->
+<div class="reg-hero">
+  <div class="container" style="max-width:880px;">
+    <p class="eyebrow" style="margin-bottom:8px;">Official Team Registration</p>
+    <h1 style="font-family:var(--f-display); font-size:clamp(38px, 6.5vw, 64px); letter-spacing:0.02em; line-height:1; margin:0 0 16px;">
+      Register for <span style="color:var(--violet);">SOLVIX'26</span>
+    </h1>
+    <p style="color:var(--ash); font-size:16px; max-width:640px; line-height:1.6; margin:0 0 24px;">
+      Empower your ideas. Complete team credentials, member details, transfer payment of &#8377;299, and join the official community. Strict limit: 30 teams only.
+    </p>
+
+    <!-- Alert / Status Notice -->
+    <div class="notice notice--info" id="statusBanner">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span><b>Live Slot Monitor:</b> <span id="slotsCount">Checking available slots...</span>. Early registrations are reviewed first for spot confirmation.</span>
     </div>
 
-    <form id="adminLoginForm">
+    <!-- Error Alert Box -->
+    <div class="notice notice--error" id="formErrorBox" style="display:none; margin-top:14px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      <span id="formErrorMessage">Please fix errors in the form before submitting.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MAIN REGISTRATION FORM ================= -->
+<div class="container" style="max-width:880px; padding-bottom:90px;">
+  <form id="solvixForm" novalidate>
+    
+    <!-- SECTION 1: TEAM DETAILS -->
+    <section class="form-section">
+      <div class="sec-title">
+        <span class="sec-badge">1</span>
+        <span>Team Information</span>
+      </div>
+
       <div class="field">
-        <label for="adminPass">Coordinator Passcode</label>
-        <input type="password" id="adminPass" placeholder="Enter coordinator passcode" required autocomplete="current-password">
-        <small style="color:var(--ash-dim); font-size:11px; margin-top:5px; display:block;">Default passcode: <code style="color:var(--violet); font-family:var(--f-mono);">solvix2026</code></small>
-        <small class="error-msg" id="loginError"></small>
+        <label for="teamName">Team Name <span class="req">*</span></label>
+        <input type="text" id="teamName" name="teamName" placeholder="e.g. CyberVanguard, NeuralNodes" required autocomplete="off">
+        <small class="error-msg" id="err-teamName"></small>
       </div>
 
-      <button type="submit" class="btn btn--primary" style="width:100%; margin-top:20px; padding:12px;">
-        Access Dashboard &nbsp;&rarr;
-      </button>
-    </form>
-  </div>
-</div>
-
-<!-- ================= DASHBOARD MAIN VIEW ================= -->
-<div id="dashboardView" style="display:none; padding:120px 0 60px;">
-  <div class="container">
-
-    <!-- Header bar -->
-    <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:16px; margin-bottom:30px;">
-      <div>
-        <p class="eyebrow">Event Management Console</p>
-        <h1 style="font-family:var(--f-display); font-size:clamp(32px, 5vw, 48px); margin:4px 0 0;">
-          Registrations &amp; Verification
-        </h1>
-      </div>
-
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button id="showSupaConfigBtn" class="btn btn--ghost btn--sm" style="border-color:rgba(144,64,237,0.4); color:var(--violet);">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          Connect Supabase
-        </button>
-        <button id="showSqlBtn" class="btn btn--ghost btn--sm">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7c0-2.2 3.6-4 8-4s8 1.8 8 4-3.6 4-8 4-8-1.8-8-4zM4 7v10c0 2.2 3.6 4 8 4s8-1.8 8-4V7"/></svg>
-          Supabase SQL Setup
-        </button>
-        <button id="exportCsvBtn" class="btn btn--ghost btn--sm">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-          Export to CSV
-        </button>
-        <button id="refreshBtn" class="btn btn--primary btn--sm">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-          Refresh Data
-        </button>
-      </div>
-    </div>
-
-    <!-- STATS CARDS -->
-    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:28px;">
-      <div class="stat-card">
-        <p class="stat-k">Total Teams</p>
-        <p class="stat-v" id="statTotal">0</p>
-        <p class="stat-sub">Strict Cap: 30 teams</p>
-      </div>
-      <div class="stat-card">
-        <p class="stat-k">Slots Available</p>
-        <p class="stat-v" id="statSlots" style="color:var(--violet);">30</p>
-        <p class="stat-sub">Remaining openings</p>
-      </div>
-      <div class="stat-card">
-        <p class="stat-k">Verified &amp; Paid</p>
-        <p class="stat-v" id="statVerified" style="color:var(--emerald);">0</p>
-        <p class="stat-sub">&#8377;299 received &amp; confirmed</p>
-      </div>
-      <div class="stat-card">
-        <p class="stat-k">Pending Review</p>
-        <p class="stat-v" id="statPending" style="color:var(--amber);">0</p>
-        <p class="stat-sub">Awaiting verification</p>
-      </div>
-      <div class="stat-card">
-        <p class="stat-k">Total Fees Collected</p>
-        <p class="stat-v" id="statRevenue" style="color:var(--bone);">&#8377;0</p>
-        <p class="stat-sub">From verified teams</p>
-      </div>
-    </div>
-
-    <!-- FILTER & SEARCH BAR -->
-    <div class="filter-bar">
-      <div style="display:flex; flex:1; min-width:260px; max-width:440px;">
-        <input type="text" id="searchInput" placeholder="Search by team, leader, college, ID, or UTR..." style="width:100%; padding:10px 14px; font-size:13px;">
-      </div>
-
-      <div style="display:flex; gap:10px; align-items:center;">
-        <span style="font-family:var(--f-mono); font-size:12px; color:var(--ash);">Filter Status:</span>
-        <select id="statusFilter" style="padding:10px 14px; font-size:13px; width:auto;">
-          <option value="all">All Registrations</option>
-          <option value="pending">Pending</option>
-          <option value="verified">Verified</option>
-          <option value="rejected">Rejected</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- TABLE -->
-    <div class="tbl-wrap">
-      <table class="reg-tbl">
-        <thead>
-          <tr>
-            <th>Reg ID</th>
-            <th>Team Name &amp; College</th>
-            <th>Size</th>
-            <th>Leader &amp; Contact</th>
-            <th>Transaction ID</th>
-            <th>Status</th>
-            <th>Payment Proof</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="regTableBody">
-          <tr>
-            <td colspan="8" style="text-align:center; padding:40px; color:var(--ash);">
-              Loading registrations from database...
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-  </div>
-</div>
-
-<!-- ================= FULL TEAM DETAIL MODAL ================= -->
-<div id="detailModal">
-  <div class="detail-card">
-    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
-      <div>
-        <span id="dtRegId" style="font-family:var(--f-mono); font-size:12px; color:var(--violet);">SOLVIX-26-XXXX</span>
-        <h2 id="dtTeamName" style="font-family:var(--f-display); font-size:26px; margin:4px 0 0;">Team Details</h2>
-        <p id="dtCollege" style="color:var(--ash); font-size:14px; margin:2px 0 0;">College Name</p>
-      </div>
-      <button id="closeDetailBtn" class="btn btn--ghost btn--sm">&times; Close</button>
-    </div>
-
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; background:rgba(255,255,255,0.03); padding:16px; border-radius:12px;">
-      <div>
-        <span class="facts__k">Transaction / UTR ID</span>
-        <p id="dtTxnId" class="mono" style="margin:4px 0 0; font-size:15px; color:#fff;">-</p>
-      </div>
-      <div>
-        <span class="facts__k">Current Status</span>
-        <p id="dtStatus" style="margin:4px 0 0;">-</p>
-      </div>
-    </div>
-
-    <h4 style="font-family:var(--f-mono); font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ash); margin-bottom:12px;">
-      Registered Members &amp; ID Cards
-    </h4>
-    <div id="dtMembersList" style="display:grid; gap:12px; margin-bottom:24px;"></div>
-
-    <div style="margin-bottom:24px;">
-      <h4 style="font-family:var(--f-mono); font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ash); margin-bottom:10px;">
-        Payment Receipt Screenshot
-      </h4>
-      <div id="dtPaymentContainer" style="max-height:260px; overflow:hidden; border-radius:10px; border:1px solid var(--border); background:rgba(0,0,0,0.5); display:grid; place-items:center; padding:10px;">
-        <img id="dtPaymentImg" src="" alt="Receipt" style="max-height:240px; max-width:100%; object-fit:contain; border-radius:6px; display:none;">
-        <span id="dtPaymentLink">No screenshot preview</span>
-      </div>
-    </div>
-
-    <div id="dtActionsBar" style="display:flex; justify-content:flex-end; gap:10px;"></div>
-  </div>
-</div>
-
-<!-- ================= SUPABASE CONNECTION MODAL ================= -->
-<div id="supaConfigModal">
-  <div class="detail-card" style="max-width:620px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <div style="width:36px; height:36px; border-radius:50%; background:rgba(144, 64, 237, 0.15); border:1px solid var(--violet); color:var(--violet); display:grid; place-items:center;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <div class="field" style="margin-top:20px;">
+        <label>Team Size <span class="req">*</span> (2 or 3 members)</label>
+        <div class="size-picker">
+          <div class="size-option active" id="size2Btn" data-size="2">
+            <span class="size-title">2 Members</span>
+            <span class="size-desc">Team Leader + 1 Member</span>
+          </div>
+          <div class="size-option" id="size3Btn" data-size="3">
+            <span class="size-title">3 Members</span>
+            <span class="size-desc">Team Leader + 2 Members</span>
+          </div>
         </div>
-        <h3 style="font-family:var(--f-display); font-size:22px; margin:0; color:var(--bone);">Supabase Settings</h3>
+        <input type="hidden" id="teamSize" name="teamSize" value="2">
       </div>
-      <button id="closeSupaConfigBtn" class="btn btn--ghost btn--sm">&times; Close</button>
-    </div>
+    </section>
 
-    <div id="supaStatusBadge" style="margin-bottom:18px; padding:12px 16px; border-radius:10px; font-size:13px; font-family:var(--f-mono); background:rgba(255,255,255,0.03); border:1px solid var(--border);">
-      Checking configuration status...
-    </div>
+    <!-- SECTION 2: DYNAMIC MEMBER FIELDS -->
+    <section class="form-section">
+      <div class="sec-title">
+        <span class="sec-badge">2</span>
+        <span>Team Members</span>
+      </div>
+      <p style="color:var(--ash); font-size:14px; margin-top:-10px; margin-bottom:20px;">
+        Every participant must present a valid college ID at entry. Leader serves as the primary contact.
+      </p>
 
-    <p style="color:var(--ash); font-size:13.5px; line-height:1.6; margin:0 0 16px;">
-      Enter your Supabase project credentials. You can copy these from your <a href="https://supabase.com/dashboard" target="_blank" rel="noopener" style="color:var(--violet); text-decoration:underline;">Supabase Dashboard</a> &rarr; <b>Project Settings &rarr; API</b>. Once connected, registrations and live slot counters immediately sync across the whole app.
-    </p>
+      <!-- Member 1: Leader -->
+      <div class="member-box">
+        <div class="member-head">
+          <div class="member-title">
+            <span>Member 1</span>
+            <span class="member-role-badge">Team Leader</span>
+          </div>
+          <span style="font-family:var(--f-mono); font-size:12px; color:var(--ash);">Primary Contact</span>
+        </div>
 
-    <div style="display:grid; gap:14px; margin-bottom:20px;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px;">
+          <div class="field">
+            <label for="m1_name">Full Name <span class="req">*</span></label>
+            <input type="text" id="m1_name" name="m1_name" placeholder="Full name as on ID card" required>
+            <small class="error-msg" id="err-m1_name"></small>
+          </div>
+          <div class="field">
+            <label for="m1_email">Email Address <span class="req">*</span></label>
+            <input type="email" id="m1_email" name="m1_email" placeholder="leader@college.edu or gmail" required>
+            <small class="error-msg" id="err-m1_email"></small>
+          </div>
+          <div class="field">
+            <label for="m1_college">College / University Name <span class="req">*</span></label>
+            <input type="text" id="m1_college" name="m1_college" placeholder="e.g. Jeppiaar Engineering College, Chennai" required>
+            <small class="error-msg" id="err-m1_college"></small>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin-top:14px;">
+          <div class="field">
+            <label for="m1_phone">Phone Number <span class="req">*</span></label>
+            <input type="tel" id="m1_phone" name="m1_phone" placeholder="10-digit mobile number" maxlength="10" required>
+            <small class="error-msg" id="err-m1_phone"></small>
+          </div>
+          <div class="field">
+            <label for="m1_year">Year of Study <span class="req">*</span></label>
+            <select id="m1_year" name="m1_year" required>
+              <option value="">Select year</option>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+              <option value="Postgraduate">Postgraduate</option>
+            </select>
+            <small class="error-msg" id="err-m1_year"></small>
+          </div>
+          <div class="field">
+            <label for="m1_dept">Department <span class="req">*</span></label>
+            <input type="text" id="m1_dept" name="m1_dept" placeholder="e.g. AI & ML, CSE, ECE" required>
+            <small class="error-msg" id="err-m1_dept"></small>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-top:14px;">
+          <div class="field">
+            <label for="m1_parent_phone">Parent / Guardian Contact No.</label>
+            <input type="tel" id="m1_parent_phone" name="m1_parent_phone" placeholder="Parent mobile number" maxlength="10">
+            <small class="error-msg" id="err-m1_parent_phone"></small>
+          </div>
+          <div class="field">
+            <label for="m1_hod_phone">Dept. HOD / In-charge Contact No.</label>
+            <input type="tel" id="m1_hod_phone" name="m1_hod_phone" placeholder="Official contact number" maxlength="10">
+            <small class="error-msg" id="err-m1_hod_phone"></small>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:14px;">
+          <label>College ID Card (Image or PDF, max 5MB) <span class="req">*</span></label>
+          <div class="file-dropzone" id="m1_id_dropzone">
+            <input type="file" id="m1_id_file" accept="image/*,application/pdf" style="display:none;">
+            <p style="margin:0; font-size:13.5px; color:var(--bone);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+              Click or drag ID card file here
+            </p>
+            <span style="font-size:11px; color:var(--ash); display:block; margin-top:4px;">JPG, PNG, WebP or PDF up to 5MB</span>
+          </div>
+          <div class="file-preview" id="m1_id_preview" style="display:none;">
+            <span class="file-name" id="m1_id_name"></span>
+            <button type="button" class="btn btn--ghost btn--sm" id="m1_id_clear" style="padding:2px 8px; font-size:11px;">Remove</button>
+          </div>
+          <small class="error-msg" id="err-m1_id"></small>
+        </div>
+      </div>
+
+      <!-- Member 2 -->
+      <div class="member-box">
+        <div class="member-head">
+          <div class="member-title">
+            <span>Member 2</span>
+            <span class="member-role-badge" style="background:rgba(255,255,255,0.06); color:var(--bone); border-color:rgba(255,255,255,0.15);">Member</span>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px;">
+          <div class="field">
+            <label for="m2_name">Full Name <span class="req">*</span></label>
+            <input type="text" id="m2_name" name="m2_name" placeholder="Full name as on ID card" required>
+            <small class="error-msg" id="err-m2_name"></small>
+          </div>
+          <div class="field">
+            <label for="m2_email">Email Address <span class="req">*</span></label>
+            <input type="email" id="m2_email" name="m2_email" placeholder="member2@gmail.com" required>
+            <small class="error-msg" id="err-m2_email"></small>
+          </div>
+          <div class="field">
+            <label for="m2_college">College / University Name <span class="req">*</span></label>
+            <input type="text" id="m2_college" name="m2_college" placeholder="e.g. Jeppiaar Engineering College, Chennai" required>
+            <small class="error-msg" id="err-m2_college"></small>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin-top:14px;">
+          <div class="field">
+            <label for="m2_phone">Phone Number <span class="req">*</span></label>
+            <input type="tel" id="m2_phone" name="m2_phone" placeholder="10-digit mobile number" maxlength="10" required>
+            <small class="error-msg" id="err-m2_phone"></small>
+          </div>
+          <div class="field">
+            <label for="m2_year">Year of Study <span class="req">*</span></label>
+            <select id="m2_year" name="m2_year" required>
+              <option value="">Select year</option>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+              <option value="Postgraduate">Postgraduate</option>
+            </select>
+            <small class="error-msg" id="err-m2_year"></small>
+          </div>
+          <div class="field">
+            <label for="m2_dept">Department <span class="req">*</span></label>
+            <input type="text" id="m2_dept" name="m2_dept" placeholder="e.g. AI & ML, CSE, IT" required>
+            <small class="error-msg" id="err-m2_dept"></small>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-top:14px;">
+          <div class="field">
+            <label for="m2_parent_phone">Parent / Guardian Contact No.</label>
+            <input type="tel" id="m2_parent_phone" name="m2_parent_phone" placeholder="Parent mobile number" maxlength="10">
+            <small class="error-msg" id="err-m2_parent_phone"></small>
+          </div>
+          <div class="field">
+            <label for="m2_hod_phone">Dept. HOD / In-charge Contact No.</label>
+            <input type="tel" id="m2_hod_phone" name="m2_hod_phone" placeholder="Official contact number" maxlength="10">
+            <small class="error-msg" id="err-m2_hod_phone"></small>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:14px;">
+          <label>College ID Card (Image or PDF, max 5MB) <span class="req">*</span></label>
+          <div class="file-dropzone" id="m2_id_dropzone">
+            <input type="file" id="m2_id_file" accept="image/*,application/pdf" style="display:none;">
+            <p style="margin:0; font-size:13.5px; color:var(--bone);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+              Click or drag ID card file here
+            </p>
+            <span style="font-size:11px; color:var(--ash); display:block; margin-top:4px;">JPG, PNG, WebP or PDF up to 5MB</span>
+          </div>
+          <div class="file-preview" id="m2_id_preview" style="display:none;">
+            <span class="file-name" id="m2_id_name"></span>
+            <button type="button" class="btn btn--ghost btn--sm" id="m2_id_clear" style="padding:2px 8px; font-size:11px;">Remove</button>
+          </div>
+          <small class="error-msg" id="err-m2_id"></small>
+        </div>
+      </div>
+
+      <!-- Member 3 (Shown only when team size is 3) -->
+      <div class="member-box" id="member3Container" style="display:none;">
+        <div class="member-head">
+          <div class="member-title">
+            <span>Member 3</span>
+            <span class="member-role-badge" style="background:rgba(255,255,255,0.06); color:var(--bone); border-color:rgba(255,255,255,0.15);">Member</span>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px;">
+          <div class="field">
+            <label for="m3_name">Full Name <span class="req">*</span></label>
+            <input type="text" id="m3_name" name="m3_name" placeholder="Full name as on ID card">
+            <small class="error-msg" id="err-m3_name"></small>
+          </div>
+          <div class="field">
+            <label for="m3_email">Email Address <span class="req">*</span></label>
+            <input type="email" id="m3_email" name="m3_email" placeholder="member3@gmail.com">
+            <small class="error-msg" id="err-m3_email"></small>
+          </div>
+          <div class="field">
+            <label for="m3_college">College / University Name <span class="req">*</span></label>
+            <input type="text" id="m3_college" name="m3_college" placeholder="e.g. Jeppiaar Engineering College, Chennai">
+            <small class="error-msg" id="err-m3_college"></small>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin-top:14px;">
+          <div class="field">
+            <label for="m3_phone">Phone Number <span class="req">*</span></label>
+            <input type="tel" id="m3_phone" name="m3_phone" placeholder="10-digit mobile number" maxlength="10">
+            <small class="error-msg" id="err-m3_phone"></small>
+          </div>
+          <div class="field">
+            <label for="m3_year">Year of Study <span class="req">*</span></label>
+            <select id="m3_year" name="m3_year">
+              <option value="">Select year</option>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+              <option value="Postgraduate">Postgraduate</option>
+            </select>
+            <small class="error-msg" id="err-m3_year"></small>
+          </div>
+          <div class="field">
+            <label for="m3_dept">Department <span class="req">*</span></label>
+            <input type="text" id="m3_dept" name="m3_dept" placeholder="e.g. AI & ML, CSE, Mech">
+            <small class="error-msg" id="err-m3_dept"></small>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-top:14px;">
+          <div class="field">
+            <label for="m3_parent_phone">Parent / Guardian Contact No.</label>
+            <input type="tel" id="m3_parent_phone" name="m3_parent_phone" placeholder="Parent mobile number" maxlength="10">
+            <small class="error-msg" id="err-m3_parent_phone"></small>
+          </div>
+          <div class="field">
+            <label for="m3_hod_phone">Dept. HOD / In-charge Contact No.</label>
+            <input type="tel" id="m3_hod_phone" name="m3_hod_phone" placeholder="Official contact number" maxlength="10">
+            <small class="error-msg" id="err-m3_hod_phone"></small>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:14px;">
+          <label>College ID Card (Image or PDF, max 5MB) <span class="req">*</span></label>
+          <div class="file-dropzone" id="m3_id_dropzone">
+            <input type="file" id="m3_id_file" accept="image/*,application/pdf" style="display:none;">
+            <p style="margin:0; font-size:13.5px; color:var(--bone);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+              Click or drag ID card file here
+            </p>
+            <span style="font-size:11px; color:var(--ash); display:block; margin-top:4px;">JPG, PNG, WebP or PDF up to 5MB</span>
+          </div>
+          <div class="file-preview" id="m3_id_preview" style="display:none;">
+            <span class="file-name" id="m3_id_name"></span>
+            <button type="button" class="btn btn--ghost btn--sm" id="m3_id_clear" style="padding:2px 8px; font-size:11px;">Remove</button>
+          </div>
+          <small class="error-msg" id="err-m3_id"></small>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: OFFICIAL PAYMENT DETAILS -->
+    <section class="form-section">
+      <div class="sec-title">
+        <span class="sec-badge">3</span>
+        <span>Payment &amp; Verification</span>
+      </div>
+
+      <p style="color:var(--ash); font-size:14px; margin-top:-10px; margin-bottom:18px;">
+        Transfer the registration fee of <strong style="color:var(--bone);">&#8377;299</strong> to the official bank account below. Enter the generated UTR / Transaction ID and attach the payment screenshot.
+      </p>
+
+      <!-- Bank Details Box -->
+      <div class="glass card" style="background:rgba(18,18,22,0.8); margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <span style="font-family:var(--f-mono); font-size:12px; letter-spacing:0.1em; color:var(--violet); text-transform:uppercase;">Official Bank Account</span>
+          <span class="chip" style="background:rgba(144,64,237,0.15); color:var(--bone);">&#8377;299 per team</span>
+        </div>
+
+        <div style="display:grid; gap:8px;">
+          <div class="bank__row"><div><p class="bank__k">Bank Name</p><p class="bank__v">Indian Bank</p></div><button type="button" class="copy" data-copy="Indian Bank">Copy</button></div>
+          <div class="bank__row"><div><p class="bank__k">Account Name</p><p class="bank__v">Jeppiaar Engineering College Student and Staff Development</p></div><button type="button" class="copy" data-copy="Jeppiaar Engineering College Student and Staff Development">Copy</button></div>
+          <div class="bank__row"><div><p class="bank__k">Account Number</p><p class="bank__v mono">6446067668</p></div><button type="button" class="copy" data-copy="6446067668">Copy</button></div>
+          <div class="bank__row"><div><p class="bank__k">IFSC Code</p><p class="bank__v mono">IDIB000J037</p></div><button type="button" class="copy" data-copy="IDIB000J037">Copy</button></div>
+          <div class="bank__row"><div><p class="bank__k">Branch</p><p class="bank__v">Semmancheri</p></div><button type="button" class="copy" data-copy="Semmancheri">Copy</button></div>
+        </div>
+      </div>
+
       <div class="field">
-        <label for="cfgSupaUrl">Project URL</label>
-        <input type="text" id="cfgSupaUrl" placeholder="https://xyzabcdefghijklmnop.supabase.co" autocomplete="off">
-        <small style="color:var(--ash-dim); font-size:11px; margin-top:3px;">Your Supabase Project URL (e.g. https://your-ref.supabase.co)</small>
+        <label for="txnId">Bank Transaction / UTR ID <span class="req">*</span></label>
+        <input type="text" id="txnId" name="txnId" placeholder="e.g. 423589123456 or UTR / UPI Ref ID" required autocomplete="off">
+        <small style="color:var(--ash); font-size:11.5px; display:block; margin-top:4px;">12-digit transaction ID or official banking reference number.</small>
+        <small class="error-msg" id="err-txnId"></small>
       </div>
 
-      <div class="field">
-        <label for="cfgSupaKey">Anon Public Key</label>
-        <input type="text" id="cfgSupaKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." autocomplete="off">
-        <small style="color:var(--ash-dim); font-size:11px; margin-top:3px;">Your project's anon / public API key</small>
+      <div class="field" style="margin-top:16px;">
+        <label>Payment Screenshot / Receipt <span class="req">*</span></label>
+        <div class="file-dropzone" id="payment_dropzone">
+          <input type="file" id="payment_file" accept="image/*,application/pdf" style="display:none;">
+          <p style="margin:0; font-size:13.5px; color:var(--bone);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            Click or drag payment screenshot here
+          </p>
+          <span style="font-size:11px; color:var(--ash); display:block; margin-top:4px;">Must clearly show Transaction ID and amount (&#8377;299)</span>
+        </div>
+        <div class="file-preview" id="payment_preview" style="display:none;">
+          <span class="file-name" id="payment_name"></span>
+          <button type="button" class="btn btn--ghost btn--sm" id="payment_clear" style="padding:2px 8px; font-size:11px;">Remove</button>
+        </div>
+        <small class="error-msg" id="err-payment"></small>
       </div>
-    </div>
+    </section>
 
-    <div id="supaTestFeedback" style="display:none; margin-bottom:16px; font-size:12.5px; font-family:var(--f-mono);"></div>
+    <!-- SECTION 4: WHATSAPP GROUP ONBOARDING -->
+    <section class="form-section whatsapp-box">
+      <div class="sec-title" style="color:#25D366;">
+        <span class="sec-badge" style="background:rgba(37,211,102,0.2); border-color:#25D366; color:#25D366;">4</span>
+        <span>Official WhatsApp Group</span>
+      </div>
 
-    <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; border-top:1px solid var(--hair-2); padding-top:16px;">
-      <button type="button" id="clearSupaConfigBtn" class="btn btn--ghost btn--sm" style="color:#FCA5A5; border-color:rgba(239,68,68,0.3);">
-        Disconnect / Reset
+      <p style="color:var(--ash); font-size:14px; margin-top:-10px; margin-bottom:18px;">
+        Join the official HackRush 2K26 WhatsApp community immediately. Essential for spot registrations, midnight phase briefings, mentor queries, and immediate alerts.
+      </p>
+
+      <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; margin-bottom:20px;">
+        <div>
+          <span style="font-family:var(--f-mono); font-size:13px; color:var(--bone); display:block;">SOLVIX'26 Official Participant Group</span>
+          <span style="font-size:12px; color:var(--ash);">Managed by Dept. of AI &amp; ML Coordinators</span>
+        </div>
+        <a href="https://chat.whatsapp.com/G5sJvO8V87v8Q1j81Q0xyz" target="_blank" rel="noopener" class="whatsapp-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 2.012.82 2.802.82 3.18 0 5.767-2.587 5.767-5.766.001-3.187-2.575-5.77-5.773-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.694.072-2.18-.553-1.897-.798-3.123-2.73-3.218-2.855-.095-.126-.774-1.029-.774-1.962 0-.933.489-1.393.663-1.583.174-.19.38-.238.507-.238.127 0 .254.001.365.006.118.005.277-.044.433.332.162.392.553 1.349.601 1.447.048.098.08.213.016.339-.064.126-.096.205-.19.316-.095.111-.2.247-.286.332-.095.095-.194.198-.083.388.111.19.493.814 1.059 1.318.729.649 1.343.85 1.533.945.19.095.301.079.412-.048.111-.127.475-.555.602-.745.127-.19.254-.158.428-.095.175.063 1.11.523 1.301.618.19.095.317.143.365.222.048.079.048.46-.096.865z"/></svg>
+          Join WhatsApp Group
+        </a>
+      </div>
+
+      <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; font-size:13px; color:var(--bone);">
+        <input type="checkbox" id="waConfirmed" style="margin-top:3px; accent-color:#25D366; width:16px; height:16px;">
+        <span>I have joined or bookmarked the official WhatsApp group for all spot updates, problem releases, and event notifications.</span>
+      </label>
+      <small class="error-msg" id="err-wa" style="display:block; margin-top:6px;"></small>
+    </section>
+
+    <!-- SECTION 5: DECLARATIONS & SUBMISSION -->
+    <section class="form-section">
+      <div class="sec-title">
+        <span class="sec-badge">5</span>
+        <span>Declaration</span>
+      </div>
+
+      <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; font-size:13.5px; color:var(--bone); margin-bottom:12px;">
+        <input type="checkbox" id="termsConfirmed" required style="margin-top:3px; accent-color:var(--violet); width:16px; height:16px;">
+        <span>We confirm that all participant details and college ID cards are authentic, and we agree to abide by the SOLVIX'26 24-Hour Hackathon rules.</span>
+      </label>
+      <small class="error-msg" id="err-terms" style="display:block; margin-bottom:20px;"></small>
+
+      <!-- Submit Button -->
+      <button type="submit" id="submitBtn" class="btn btn--primary" style="width:100%; padding:18px 24px; font-size:17px; font-weight:700; letter-spacing:0.04em;">
+        Complete Registration &nbsp;&rarr;
       </button>
 
-      <div style="display:flex; gap:10px;">
-        <button type="button" id="testSupaConfigBtn" class="btn btn--ghost btn--sm">
-          Test Connection
-        </button>
-        <button type="button" id="saveSupaConfigBtn" class="btn btn--primary btn--sm">
-          Save &amp; Connect
-        </button>
+      <p style="text-align:center; font-family:var(--f-mono); font-size:12px; color:var(--ash-dim); margin-top:14px;">
+        Instant Registration ID generated &bull; Data securely synced with Supabase &bull; 30 team cap enforced
+      </p>
+    </section>
+
+  </form>
+</div>
+
+<!-- ================= SUCCESS MODAL / SUMMARY ================= -->
+<div id="successModal">
+  <div class="success-card">
+    <div style="text-align:center; margin-bottom:24px;">
+      <div style="width:64px; height:64px; border-radius:50%; background:rgba(16, 185, 129, 0.15); border:1px solid #10B981; color:#10B981; display:grid; place-items:center; margin:0 auto 16px;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
+      <p class="eyebrow" style="color:#10B981; margin:0; justify-content:center;">Registration Submitted Successfully</p>
+      <h2 style="font-family:var(--f-display); font-size:32px; letter-spacing:0.02em; margin:6px 0;">Welcome to SOLVIX'26!</h2>
+      <p style="color:var(--ash); font-size:14px; margin:0;">Your team registration has been recorded and is pending verification.</p>
+    </div>
+
+    <!-- Registration ID Highlight Box -->
+    <div style="background:rgba(144, 64, 237, 0.12); border:1px solid var(--violet); border-radius:12px; padding:16px 20px; text-align:center; margin-bottom:24px;">
+      <span style="font-family:var(--f-mono); font-size:12px; color:var(--ash); text-transform:uppercase; letter-spacing:0.1em; display:block;">Your Unique Registration ID</span>
+      <span id="resRegId" style="font-family:var(--f-mono); font-size:26px; font-weight:700; color:#fff; letter-spacing:0.05em; display:block; margin-top:4px;">SOLVIX-26-XXXX</span>
+      <span style="font-size:12px; color:var(--ash); display:block; margin-top:4px;">Please save this ID for event check-in and queries.</span>
+    </div>
+
+    <!-- Summary Details -->
+    <div style="background:rgba(0,0,0,0.4); border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:24px;">
+      <div class="summary-row"><span class="label">Team Name</span><span class="val" id="resTeamName">-</span></div>
+      <div class="summary-row"><span class="label">College</span><span class="val" id="resCollege">-</span></div>
+      <div class="summary-row"><span class="label">Team Size</span><span class="val" id="resTeamSize">-</span></div>
+      <div class="summary-row"><span class="label">Leader Name</span><span class="val" id="resLeaderName">-</span></div>
+      <div class="summary-row"><span class="label">Leader Phone</span><span class="val" id="resLeaderPhone">-</span></div>
+      <div class="summary-row"><span class="label">Leader Email</span><span class="val" id="resLeaderEmail">-</span></div>
+      <div class="summary-row"><span class="label">Transaction / UTR ID</span><span class="val" id="resTxnId">-</span></div>
+      <div class="summary-row"><span class="label">Status</span><span class="val" style="color:#F59E0B;">Submitted / Pending Verification</span></div>
+    </div>
+
+    <!-- Next Actions -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+      <a href="https://chat.whatsapp.com/G5sJvO8V87v8Q1j81Q0xyz" target="_blank" rel="noopener" class="whatsapp-btn" style="justify-content:center; padding:14px 18px; font-size:14px;">
+        Join WhatsApp Group
+      </a>
+      <button type="button" class="btn btn--ghost" id="printBtn" style="justify-content:center;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print / Save Proof
+      </button>
+    </div>
+
+    <div style="text-align:center;">
+      <a href="index.html" class="btn btn--ghost btn--sm" style="color:var(--ash-dim);">Return to Home Page</a>
     </div>
   </div>
 </div>
 
-<!-- ================= SQL SETUP MODAL ================= -->
-<div id="sqlModal">
-  <div class="detail-card" style="max-width:680px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h3 style="font-family:var(--f-display); font-size:22px; margin:0;">Supabase Database Schema</h3>
-      <button id="closeSqlBtn" class="btn btn--ghost btn--sm">&times; Close</button>
-    </div>
-    <p style="color:var(--ash); font-size:13.5px; line-height:1.6; margin:0 0 14px;">
-      To use a live Supabase project, copy and run this SQL query in your Supabase SQL Editor. It creates the <code style="color:var(--violet);">teams</code> table and sets up Row Level Security (RLS) policies.
-    </p>
-    <pre id="sqlCodeBlock" style="background:#0a0a0c; border:1px solid var(--border); border-radius:8px; padding:16px; font-family:var(--f-mono); font-size:12px; color:var(--bone); max-height:260px; overflow-y:auto; line-height:1.5; white-space:pre-wrap;"></pre>
-    <div style="display:flex; justify-content:flex-end; margin-top:16px; gap:10px;">
-      <button id="copySqlBtn" class="btn btn--primary btn--sm">Copy SQL</button>
-    </div>
-  </div>
-</div>
-
-<!-- ==========================================================================
-     STANDALONE JAVASCRIPT LOGIC
-     Authentication, Supabase Integration, LocalStorage Sync, Stats, Modals, CSV
-     ========================================================================== -->
+<!-- ================= STANDALONE REGISTRATION SCRIPT ================= -->
 <script>
-(function() {
-  const LOCAL_STORAGE_KEY = 'hackrush_2k26_local_teams';
-  const ADMIN_PASSCODES = ['solvix2026', 'admin@solvix', 'solvixadmin'];
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('solvixForm');
+  const size2Btn = document.getElementById('size2Btn');
+  const size3Btn = document.getElementById('size3Btn');
+  const teamSizeInput = document.getElementById('teamSize');
+  const member3Container = document.getElementById('member3Container');
+  const submitBtn = document.getElementById('submitBtn');
+  const formErrorBox = document.getElementById('formErrorBox');
+  const formErrorMessage = document.getElementById('formErrorMessage');
+  const slotsCount = document.getElementById('slotsCount');
 
-  const SUPABASE_SCHEMA_SQL = `-- HACKRUSH 2K26 / SOLVIX'26 DATABASE SCHEMA
-CREATE TABLE IF NOT EXISTS public.teams (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    registration_id TEXT UNIQUE NOT NULL,
-    team_name TEXT NOT NULL,
-    college_name TEXT NOT NULL,
-    team_size INTEGER NOT NULL CHECK (team_size IN (2, 3)),
-    leader_name TEXT NOT NULL,
-    leader_email TEXT NOT NULL,
-    leader_phone TEXT NOT NULL,
-    leader_year TEXT NOT NULL,
-    leader_department TEXT NOT NULL,
-    leader_parent_mobile TEXT DEFAULT '',
-    leader_incharge_mobile TEXT DEFAULT '',
-    leader_id_card_url TEXT NOT NULL,
-    transaction_id TEXT DEFAULT '',
-    payment_proof_url TEXT NOT NULL,
-    whatsapp_joined BOOLEAN NOT NULL DEFAULT false,
-    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
+  // Success modal elements
+  const successModal = document.getElementById('successModal');
+  const resRegId = document.getElementById('resRegId');
+  const resTeamName = document.getElementById('resTeamName');
+  const resCollege = document.getElementById('resCollege');
+  const resTeamSize = document.getElementById('resTeamSize');
+  const resLeaderName = document.getElementById('resLeaderName');
+  const resLeaderPhone = document.getElementById('resLeaderPhone');
+  const resLeaderEmail = document.getElementById('resLeaderEmail');
+  const resTxnId = document.getElementById('resTxnId');
+  const printBtn = document.getElementById('printBtn');
 
-CREATE TABLE IF NOT EXISTS public.team_members (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    team_id UUID NOT NULL REFERENCES public.teams(id) ON DELETE CASCADE,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    phone TEXT NOT NULL,
-    year TEXT NOT NULL,
-    college TEXT NOT NULL,
-    department TEXT NOT NULL,
-    id_card_url TEXT NOT NULL,
-    is_leader BOOLEAN NOT NULL DEFAULT false,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
--- Required public storage buckets for registration uploads.
-INSERT INTO storage.buckets (id, name, public)
-VALUES
-    ('id-cards', 'id-cards', true),
-    ('payment-receipts', 'payment-receipts', true)
-ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public;
-
-ALTER TABLE public.teams ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Allow public insert into teams" ON public.teams;
-DROP POLICY IF EXISTS "Allow public insert into team_members" ON public.team_members;
-DROP POLICY IF EXISTS "Allow public read teams" ON public.teams;
-DROP POLICY IF EXISTS "Allow public update teams" ON public.teams;
-DROP POLICY IF EXISTS "Allow public read team_members" ON public.team_members;
-DROP POLICY IF EXISTS "Allow public upload registration files" ON storage.objects;
-
-CREATE POLICY "Allow public insert into teams" ON public.teams FOR INSERT TO anon, authenticated WITH CHECK (true);
-CREATE POLICY "Allow public insert into team_members" ON public.team_members FOR INSERT TO anon, authenticated WITH CHECK (true);
-CREATE POLICY "Allow public read teams" ON public.teams FOR SELECT TO anon, authenticated USING (true);
-CREATE POLICY "Allow public update teams" ON public.teams FOR UPDATE TO anon, authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Allow public read team_members" ON public.team_members FOR SELECT TO anon, authenticated USING (true);
-CREATE POLICY "Allow public upload registration files" ON storage.objects FOR INSERT TO anon, authenticated WITH CHECK (bucket_id IN ('id-cards', 'payment-receipts'));
-
-CREATE POLICY "Allow authenticated full access to teams" ON public.teams FOR ALL TO authenticated USING (true);
-CREATE POLICY "Allow authenticated full access to team_members" ON public.team_members FOR ALL TO authenticated USING (true);`;
-
-  // Default seed teams if local storage is clean
-  const INITIAL_SEEDS = [
-    {
-      id: 'd9b73f8a-9a1b-4f11-9a99-b1d6f1a8c001',
-      registration_id: 'HR26-CYBER',
-      team_name: 'CyberPioneers',
-      team_size: 3,
-      leader_name: 'Aravind Swaminathan',
-      leader_study_year: 'Third year',
-      leader_college: 'Jeppiaar Engineering College',
-      leader_department: 'Artificial Intelligence & Machine Learning',
-      leader_mobile: '9840123456',
-      leader_email: 'aravind.aiml@jeppiaar.ac.in',
-      leader_parent_mobile: '9840987654',
-      leader_hod_mobile: '9444112233',
-      leader_id_card_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=60',
-      payment_screenshot_url: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=60',
-      transaction_id: 'UTR4928109384',
-      status: 'approved',
-      whatsapp_joined: true,
-      created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-      members: [
-        {
-          member_no: 1,
-          member_name: 'Sneha Venkatesh',
-          study_year: 'Third year',
-          college: 'Jeppiaar Engineering College',
-          department: 'Computer Science and Engineering',
-          mobile: '9790123456',
-          email: 'sneha.v@jeppiaar.ac.in',
-          id_card_url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&auto=format&fit=crop&q=60',
-        },
-        {
-          member_no: 2,
-          member_name: 'Rohit Kanna',
-          study_year: 'Third year',
-          college: 'Jeppiaar Engineering College',
-          department: 'Information Technology',
-          mobile: '9884123456',
-          email: 'rohit.k@jeppiaar.ac.in',
-          id_card_url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=500&auto=format&fit=crop&q=60',
-        }
-      ]
-    },
-    {
-      id: 'e1a82c44-b23c-4a33-8822-c3e5f2b9d002',
-      registration_id: 'HR26-NEXUS',
-      team_name: 'UrbanSync Matrix',
-      team_size: 2,
-      leader_name: 'Pooja Ramachandran',
-      leader_study_year: 'Final year',
-      leader_college: 'Anna University, CEG Campus',
-      leader_department: 'ECE',
-      leader_mobile: '9445123456',
-      leader_email: 'pooja.ram@ceg.edu',
-      leader_parent_mobile: '9445987654',
-      leader_hod_mobile: '9841002244',
-      leader_id_card_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&auto=format&fit=crop&q=60',
-      payment_screenshot_url: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=60',
-      transaction_id: 'UTR8839201948',
-      status: 'pending',
-      whatsapp_joined: false,
-      created_at: new Date(Date.now() - 86400000).toISOString(),
-      members: [
-        {
-          member_no: 1,
-          member_name: 'Karthik Raja',
-          study_year: 'Final year',
-          college: 'Anna University, CEG Campus',
-          department: 'ECE',
-          mobile: '9445889900',
-          email: 'karthik.r@ceg.edu',
-          id_card_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=60',
-        }
-      ]
-    }
-  ];
-
-  // DOM Elements
-  const loginView = document.getElementById('loginView');
-  const dashboardView = document.getElementById('dashboardView');
-  const adminLoginForm = document.getElementById('adminLoginForm');
-  const adminPassInput = document.getElementById('adminPass');
-  const loginError = document.getElementById('loginError');
-  const logoutBtn = document.getElementById('logoutBtn');
-
-  const statTotal = document.getElementById('statTotal');
-  const statSlots = document.getElementById('statSlots');
-  const statVerified = document.getElementById('statVerified');
-  const statPending = document.getElementById('statPending');
-  const statRevenue = document.getElementById('statRevenue');
-
-  const regTableBody = document.getElementById('regTableBody');
-  const searchInput = document.getElementById('searchInput');
-  const statusFilter = document.getElementById('statusFilter');
-  const refreshBtn = document.getElementById('refreshBtn');
-  const exportCsvBtn = document.getElementById('exportCsvBtn');
-
-  const detailModal = document.getElementById('detailModal');
-  const closeDetailBtn = document.getElementById('closeDetailBtn');
-  const sqlModal = document.getElementById('sqlModal');
-  const showSqlBtn = document.getElementById('showSqlBtn');
-  const closeSqlBtn = document.getElementById('closeSqlBtn');
-  const copySqlBtn = document.getElementById('copySqlBtn');
-  const sqlCodeBlock = document.getElementById('sqlCodeBlock');
-
-  // Supabase Config Modal Elements
-  const supaConfigModal = document.getElementById('supaConfigModal');
-  const showSupaConfigBtn = document.getElementById('showSupaConfigBtn');
-  const closeSupaConfigBtn = document.getElementById('closeSupaConfigBtn');
-  const cfgSupaUrl = document.getElementById('cfgSupaUrl');
-  const cfgSupaKey = document.getElementById('cfgSupaKey');
-  const supaStatusBadge = document.getElementById('supaStatusBadge');
-  const supaTestFeedback = document.getElementById('supaTestFeedback');
-  const testSupaConfigBtn = document.getElementById('testSupaConfigBtn');
-  const saveSupaConfigBtn = document.getElementById('saveSupaConfigBtn');
-  const clearSupaConfigBtn = document.getElementById('clearSupaConfigBtn');
-
-  let allTeams = [];
+  const LOCAL_STORAGE_KEY = 'solvix_registrations_v1';
   let supabaseClient = null;
 
   // Supabase Config Resolver
   function getActiveSupabaseConfig() {
-    // 1. Check window.SOLVIX_SUPABASE_CONFIG from supabase-config.js
     if (window.SOLVIX_SUPABASE_CONFIG && window.SOLVIX_SUPABASE_CONFIG.url && window.SOLVIX_SUPABASE_CONFIG.anonKey) {
       const u = window.SOLVIX_SUPABASE_CONFIG.url.trim();
       const k = window.SOLVIX_SUPABASE_CONFIG.anonKey.trim();
-      if (u.length > 5 && k.length > 10) {
-        return { url: u, anonKey: k, source: 'supabase-config.js' };
-      }
+      if (u.length > 5 && k.length > 10) return { url: u, anonKey: k };
     }
-    // 2. Check localStorage
     try {
       const stored = localStorage.getItem('hackrush_supabase_config');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (parsed.url && parsed.anonKey) {
-          return { url: parsed.url.trim(), anonKey: parsed.anonKey.trim(), source: 'Browser Storage' };
-        }
+        if (parsed.url && parsed.anonKey) return parsed;
       }
     } catch (e) {}
     return null;
   }
 
-  function updateSupaBadge() {
-    if (!supaStatusBadge) return;
-    const cfg = getActiveSupabaseConfig();
-    if (cfg) {
-      supaStatusBadge.style.background = 'rgba(16, 185, 129, 0.12)';
-      supaStatusBadge.style.border = '1px solid rgba(16, 185, 129, 0.4)';
-      supaStatusBadge.style.color = '#34D399';
-      supaStatusBadge.innerHTML = `<span style="font-weight:700;">&#x25CF; CONNECTED</span> &mdash; ${cfg.url.substring(0, 38)}... <span style="opacity:0.75;">(${cfg.source})</span>`;
-    } else {
-      supaStatusBadge.style.background = 'rgba(245, 158, 11, 0.1)';
-      supaStatusBadge.style.border = '1px solid rgba(245, 158, 11, 0.3)';
-      supaStatusBadge.style.color = '#FBBF24';
-      supaStatusBadge.innerHTML = `<span style="font-weight:700;">&#x25CB; OFFLINE MODE</span> &mdash; Operating on local storage fallback. Enter keys below or edit <code>supabase-config.js</code> to enable live database sync.`;
-    }
-  }
-
   // Supabase Client Initialization
-  function initSupabase() {
-    try {
-      const config = getActiveSupabaseConfig();
-      if (config && config.url && config.anonKey && window.supabase) {
-        supabaseClient = window.supabase.createClient(config.url, config.anonKey);
-      } else {
-        supabaseClient = null;
-      }
-    } catch (e) {
-      console.warn('Supabase initialization error, falling back to local storage:', e);
-      supabaseClient = null;
+  try {
+    const config = getActiveSupabaseConfig();
+    if (config && window.supabase) {
+      supabaseClient = window.supabase.createClient(config.url, config.anonKey);
     }
-    updateSupaBadge();
+  } catch (e) {
+    console.warn('Supabase initialization warning:', e);
   }
 
-  // Auth Functions
-  function checkAuth() {
-    const isAuthed = sessionStorage.getItem('solvix_admin_auth') === 'true';
-    if (isAuthed) {
-      if (loginView) loginView.style.display = 'none';
-      if (dashboardView) dashboardView.style.display = 'block';
-      if (logoutBtn) logoutBtn.style.display = 'inline-flex';
-      loadRegistrations();
-    } else {
-      if (loginView) loginView.style.display = 'grid';
-      if (dashboardView) dashboardView.style.display = 'none';
-      if (logoutBtn) logoutBtn.style.display = 'none';
-    }
-  }
+  // File state cache (File objects)
+  const files = {
+    m1_id: null,
+    m2_id: null,
+    m3_id: null,
+    payment: null
+  };
 
-  adminLoginForm?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const pass = adminPassInput?.value.trim();
-    if (ADMIN_PASSCODES.includes(pass)) {
-      sessionStorage.setItem('solvix_admin_auth', 'true');
-      if (loginError) loginError.textContent = '';
-      checkAuth();
-    } else {
-      if (loginError) loginError.textContent = 'Invalid coordinator passcode. Please try again.';
-      if (adminPassInput) adminPassInput.value = '';
-    }
-  });
-
-  logoutBtn?.addEventListener('click', function() {
-    sessionStorage.removeItem('solvix_admin_auth');
-    checkAuth();
-  });
-
-  // Data Loading
-  async function fetchTeams() {
-    // 1. Try Supabase
+  /* ---- 1. Fetch available slots on load ---- */
+  async function updateAvailableSlots() {
+    let teams = [];
     if (supabaseClient) {
       try {
-        const { data: teamsData, error } = await supabaseClient
-          .from('teams')
-          .select('*, team_members(*)');
-        if (!error && teamsData && teamsData.length > 0) {
-          return teamsData.map(t => ({
-            ...t,
-            members: t.team_members || []
-          }));
+        const { data, error } = await supabaseClient.from('teams').select('id, status');
+        if (!error && Array.isArray(data)) {
+          teams = data;
         }
       } catch (err) {
-        console.warn('Supabase fetch failed, falling back to local storage:', err);
+        console.warn('Supabase fetch slots fallback:', err);
       }
     }
-
-    // 2. Fallback to LocalStorage
-    try {
-      const raw = localStorage.getItem('solvix_registrations_v1') || localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      }
-      // Seed if completely empty
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(INITIAL_SEEDS));
-      return INITIAL_SEEDS;
-    } catch (e) {
-      console.error('LocalStorage error:', e);
-      return INITIAL_SEEDS;
-    }
-  }
-
-  function isVerified(t) {
-    return t.status === 'approved' || t.status === 'verified';
-  }
-
-  function updateStats(teams) {
-    const total = teams.length;
-    const verified = teams.filter(isVerified).length;
-    const pending = teams.filter(t => t.status === 'pending').length;
-    const active = teams.filter(t => t.status !== 'rejected').length;
-    const slots = Math.max(0, 30 - active);
-
-    if (statTotal) statTotal.textContent = String(total);
-    if (statSlots) statSlots.textContent = String(slots);
-    if (statVerified) statVerified.textContent = String(verified);
-    if (statPending) statPending.textContent = String(pending);
-    if (statRevenue) statRevenue.textContent = '₹' + (verified * 299);
-  }
-
-  async function loadRegistrations() {
-    if (regTableBody) {
-      regTableBody.innerHTML = `
-        <tr>
-          <td colspan="8" style="text-align:center; padding:40px; color:var(--ash);">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite; vertical-align:middle; margin-right:8px;"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
-            Loading registrations...
-          </td>
-        </tr>
-      `;
-    }
-
-    try {
-      allTeams = await fetchTeams();
-      updateStats(allTeams);
-      renderTable();
-    } catch (err) {
-      console.error('Error fetching registrations:', err);
-      if (regTableBody) {
-        regTableBody.innerHTML = `
-          <tr>
-            <td colspan="8" style="text-align:center; padding:40px; color:#EF4444;">
-              Failed to load registrations. Check console logs.
-            </td>
-          </tr>
-        `;
-      }
-    }
-  }
-
-  function escapeHtml(str) {
-    return (str || '').replace(/[&<>"']/g, function(m) {
-      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m] || m;
-    });
-  }
-
-  function renderTable() {
-    if (!regTableBody) return;
-
-    const query = searchInput?.value.trim().toLowerCase() || '';
-    const status = statusFilter?.value || 'all';
-
-    const filtered = allTeams.filter(function(t) {
-      const isTeamVerified = isVerified(t);
-      const matchesStatus =
-        status === 'all' ||
-        (status === 'verified' && isTeamVerified) ||
-        t.status === status;
-
-      const college = t.leader_college || t.college_name || '';
-      const regId = t.registration_id || t.id || '';
-      const matchesQuery =
-        !query ||
-        t.team_name.toLowerCase().includes(query) ||
-        college.toLowerCase().includes(query) ||
-        t.leader_name.toLowerCase().includes(query) ||
-        regId.toLowerCase().includes(query) ||
-        (t.transaction_id && t.transaction_id.toLowerCase().includes(query));
-
-      return matchesStatus && matchesQuery;
-    });
-
-    if (filtered.length === 0) {
-      regTableBody.innerHTML = `
-        <tr>
-          <td colspan="8" style="text-align:center; padding:40px; color:var(--ash);">
-            No registrations found matching current search / filters.
-          </td>
-        </tr>
-      `;
-      return;
-    }
-
-    regTableBody.innerHTML = filtered.map(function(team) {
-      const regId = team.registration_id || team.id;
-      const college = team.leader_college || team.college_name || '';
-      const phone = team.leader_mobile || team.leader_phone || '';
-      const proofUrl = team.payment_screenshot_url || team.payment_proof_url || '';
-      const verified = isVerified(team);
-
-      return `
-        <tr data-id="${team.id}">
-          <td><strong style="font-family:var(--f-mono); font-size:12px; color:var(--violet);">${regId}</strong></td>
-          <td>
-            <div style="font-weight:600; color:var(--bone);">${escapeHtml(team.team_name)}</div>
-            <div style="font-size:12px; color:var(--ash);">${escapeHtml(college)}</div>
-          </td>
-          <td><span class="chip" style="font-size:11px;">${team.team_size}</span></td>
-          <td>
-            <div>${escapeHtml(team.leader_name)}</div>
-            <div style="font-size:11.5px; font-family:var(--f-mono); color:var(--ash);">${escapeHtml(phone)}</div>
-          </td>
-          <td><span class="mono" style="font-size:12px;">${escapeHtml(team.transaction_id || '-')}</span></td>
-          <td>
-            <span class="status-badge ${verified ? 'verified' : team.status}">
-              <span class="dot ${verified ? 'dot--live' : ''}" style="${team.status === 'pending' ? 'background:#F59E0B' : team.status === 'rejected' ? 'background:#EF4444' : ''}"></span>
-              ${verified ? 'Verified' : team.status}
-            </span>
-          </td>
-          <td>
-            ${proofUrl ? `
-              <a href="${proofUrl}" target="_blank" rel="noopener" class="action-icon-btn" style="text-decoration:none;">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
-                View Receipt
-              </a>
-            ` : '<span style="color:var(--ash-dim); font-size:11px;">None</span>'}
-          </td>
-          <td>
-            <div class="action-btn-group">
-              <button class="action-icon-btn btn-details" data-id="${team.id}" title="View Details">
-                Details
-              </button>
-              ${!verified ? `
-                <button class="action-icon-btn btn-approve" data-id="${team.id}" title="Approve & Verify">
-                  &check;
-                </button>
-              ` : ''}
-              ${team.status !== 'rejected' ? `
-                <button class="action-icon-btn btn-reject" data-id="${team.id}" title="Reject">
-                  &times;
-                </button>
-              ` : ''}
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
-  }
-
-  // Update Status in Supabase & LocalStorage
-  async function updateStatus(id, newStatus) {
-    try {
-      // 1. Update in-memory
-      const team = allTeams.find(t => t.id === id);
-      if (team) team.status = newStatus;
-
-      // 2. Update Supabase if available
-      if (supabaseClient) {
-        try {
-          await supabaseClient.from('teams').update({ status: newStatus }).eq('id', id);
-        } catch (e) {
-          console.warn('Supabase status update failed:', e);
-        }
-      }
-
-      // 3. Update LocalStorage
+    if (teams.length === 0) {
       try {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allTeams));
-        localStorage.setItem('solvix_registrations_v1', JSON.stringify(allTeams));
-      } catch (e) {
-        console.warn('LocalStorage save failed:', e);
-      }
+        const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) teams = parsed;
+        }
+      } catch (e) {}
+    }
 
-      updateStats(allTeams);
-      renderTable();
-    } catch (err) {
-      alert('Failed to update status: ' + err.message);
+    const totalSlots = 30;
+    const taken = teams.filter(function(t) { return t.status !== 'rejected'; }).length;
+    const left = Math.max(0, totalSlots - taken);
+
+    if (slotsCount) {
+      if (left === 0) {
+        slotsCount.innerHTML = '<span style="color:#EF4444; font-weight:700;">CAP REACHED (Waitlist only)</span>';
+      } else {
+        slotsCount.innerHTML = '<b style="color:var(--violet); font-family:var(--f-mono);">' + left + ' of ' + totalSlots + ' SLOTS AVAILABLE</b>';
+      }
+    }
+  }
+  updateAvailableSlots();
+
+  /* ---- 2. Team Size Switcher ---- */
+  function setTeamSize(size) {
+    if (teamSizeInput) teamSizeInput.value = String(size);
+    if (size === 2) {
+      size2Btn && size2Btn.classList.add('active');
+      size3Btn && size3Btn.classList.remove('active');
+      if (member3Container) member3Container.style.display = 'none';
+      clearErrors(['m3_name', 'm3_email', 'm3_college', 'm3_phone', 'm3_year', 'm3_dept', 'm3_id']);
+    } else {
+      size3Btn && size3Btn.classList.add('active');
+      size2Btn && size2Btn.classList.remove('active');
+      if (member3Container) member3Container.style.display = 'block';
     }
   }
 
-  // Team Details Modal
-  function showTeamDetails(id) {
-    const team = allTeams.find(t => t.id === id);
-    if (!team || !detailModal) return;
+  size2Btn && size2Btn.addEventListener('click', function() { setTeamSize(2); });
+  size3Btn && size3Btn.addEventListener('click', function() { setTeamSize(3); });
 
-    const dtRegId = document.getElementById('dtRegId');
-    const dtTeamName = document.getElementById('dtTeamName');
-    const dtCollege = document.getElementById('dtCollege');
-    const dtTxnId = document.getElementById('dtTxnId');
-    const dtStatus = document.getElementById('dtStatus');
-    const dtMembersList = document.getElementById('dtMembersList');
-    const dtPaymentImg = document.getElementById('dtPaymentImg');
-    const dtPaymentLink = document.getElementById('dtPaymentLink');
-    const dtActionsBar = document.getElementById('dtActionsBar');
+  /* ---- 3. File Dropzones & Upload Handlers ---- */
+  function setupDropzone(key, inputId, dropId, prevId, nameId, clearId) {
+    const fileInput = document.getElementById(inputId);
+    const dropzone = document.getElementById(dropId);
+    const preview = document.getElementById(prevId);
+    const nameEl = document.getElementById(nameId);
+    const clearBtn = document.getElementById(clearId);
 
-    const regId = team.registration_id || team.id;
-    const college = team.leader_college || team.college_name || '';
-    const proofUrl = team.payment_screenshot_url || team.payment_proof_url || '';
-    const verified = isVerified(team);
+    if (!fileInput || !dropzone || !preview || !nameEl || !clearBtn) return;
 
-    if (dtRegId) dtRegId.textContent = regId;
-    if (dtTeamName) dtTeamName.textContent = team.team_name;
-    if (dtCollege) dtCollege.textContent = `${college} • ${team.team_size} Members`;
-    if (dtTxnId) dtTxnId.textContent = team.transaction_id || 'Not Provided';
-    if (dtStatus) {
-      dtStatus.innerHTML = `
-        <span class="status-badge ${verified ? 'verified' : team.status}">
-          <span class="dot ${verified ? 'dot--live' : ''}"></span>
-          ${verified ? 'VERIFIED' : team.status.toUpperCase()}
-        </span>
-      `;
-    }
+    dropzone.addEventListener('click', function() { fileInput.click(); });
 
-        const leaderMember = (team.members || []).find(function(m) {
-      return m.is_leader === true || m.is_leader === 'true';
+    dropzone.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
     });
 
-    const membersList = [
-      {
-        name: leaderMember?.name || team.leader_name || '',
-        email: leaderMember?.email || team.leader_email || '',
-        phone: leaderMember?.phone || team.leader_phone || '',
-        year: leaderMember?.year || team.leader_year || '',
-        college: leaderMember?.college || team.college_name || '',
-        dept: leaderMember?.department || team.leader_department || '',
-        id_url: leaderMember?.id_card_url || '',
-        is_leader: true,
-      }
-    ];
+    dropzone.addEventListener('dragleave', function() {
+      dropzone.classList.remove('dragover');
+    });
 
-    if (team.members && team.members.length > 0) {
-      team.members.forEach(function(m) {
-        const mName = m.member_name || m.name || '';
-        if (mName && mName !== team.leader_name) {
-          membersList.push({
-            name: mName,
-            email: m.email,
-            phone: m.mobile || m.phone || '',
-            year: m.study_year || m.year || '',
-            college: m.college || '',
-            dept: m.department,
-            id_url: m.id_card_url,
-            is_leader: false,
+    dropzone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFileSelect(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', function() {
+      if (fileInput.files && fileInput.files[0]) {
+        handleFileSelect(fileInput.files[0]);
+      }
+    });
+
+    clearBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      files[key] = null;
+      fileInput.value = '';
+      preview.style.display = 'none';
+      dropzone.style.display = 'block';
+    });
+
+    function handleFileSelect(file) {
+      const errEl = document.getElementById('err-' + key);
+      const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
+
+      if (file.type && !allowedTypes.includes(file.type) && !file.name.match(/\.(jpg|jpeg|png|webp|gif|pdf)$/i)) {
+        if (errEl) errEl.textContent = 'Invalid file type. Please upload a JPG, PNG, or PDF.';
+        return;
+      }
+      if (file.size > MAX_SIZE) {
+        if (errEl) errEl.textContent = 'File too large. Maximum allowed size is 5MB.';
+        return;
+      }
+
+      if (errEl) errEl.textContent = '';
+      files[key] = file;
+      nameEl.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+      dropzone.style.display = 'none';
+      preview.style.display = 'flex';
+    }
+  }
+
+  setupDropzone('m1_id', 'm1_id_file', 'm1_id_dropzone', 'm1_id_preview', 'm1_id_name', 'm1_id_clear');
+  setupDropzone('m2_id', 'm2_id_file', 'm2_id_dropzone', 'm2_id_preview', 'm2_id_name', 'm2_id_clear');
+  setupDropzone('m3_id', 'm3_id_file', 'm3_id_dropzone', 'm3_id_preview', 'm3_id_name', 'm3_id_clear');
+  setupDropzone('payment', 'payment_file', 'payment_dropzone', 'payment_preview', 'payment_name', 'payment_clear');
+
+  /* ---- 4. Bank Detail Copy Buttons ---- */
+  document.addEventListener('click', function(e) {
+    const target = e.target;
+    const b = target ? target.closest('.copy') : null;
+    if (!b || !b.dataset.copy) return;
+    const copyText = b.dataset.copy;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(copyText).then(function() {
+        const orig = b.textContent;
+        b.textContent = 'Copied';
+        b.classList.add('done');
+        setTimeout(function() { b.textContent = orig; b.classList.remove('done'); }, 1600);
+      }).catch(function() {});
+    } else {
+      const t = document.createElement('textarea');
+      t.value = copyText;
+      document.body.appendChild(t);
+      t.select();
+      try {
+        document.execCommand('copy');
+        const orig = b.textContent;
+        b.textContent = 'Copied';
+        b.classList.add('done');
+        setTimeout(function() { b.textContent = orig; b.classList.remove('done'); }, 1600);
+      } catch(err) {}
+      document.body.removeChild(t);
+    }
+  });
+
+  /* ---- 5. Validation Utilities ---- */
+  function setError(fieldId, msg) {
+    const errEl = document.getElementById('err-' + fieldId);
+    if (errEl) errEl.textContent = msg;
+    const input = document.getElementById(fieldId);
+    if (input) input.classList.add('invalid');
+  }
+
+  function clearErrors(fieldIds) {
+    fieldIds.forEach(function(id) {
+      const errEl = document.getElementById('err-' + id);
+      if (errEl) errEl.textContent = '';
+      const input = document.getElementById(id);
+      if (input) input.classList.remove('invalid');
+    });
+  }
+
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  function isValidPhone(phone) {
+    return /^[6-9]\d{9}$/.test(phone);
+  }
+
+  // Convert File to Base64 data URL
+  function fileToBase64(file) {
+    return new Promise(function(resolve, reject) {
+      if (!file) return resolve('');
+      const reader = new FileReader();
+      reader.onload = function() { resolve(reader.result); };
+      reader.onerror = function(error) { reject(error); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Try Uploading to Supabase Storage, fallback to Base64
+  async function uploadFileOrBase64(file, bucket) {
+    if (!file) return '';
+    if (supabaseClient) {
+      try {
+        const fileExt = file.name.split('.').pop() || 'png';
+        const fileName = Date.now() + '_' + Math.random().toString(36).substring(2, 8) + '.' + fileExt;
+        const { data, error } = await supabaseClient.storage.from(bucket).upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+        if (!error && data && data.path) {
+          const { data: publicUrlData } = supabaseClient.storage.from(bucket).getPublicUrl(data.path);
+          if (publicUrlData && publicUrlData.publicUrl) {
+            return publicUrlData.publicUrl;
+          }
+        }
+      } catch (storageErr) {
+        console.warn('Supabase storage upload fallback to base64:', storageErr);
+      }
+    }
+    return await fileToBase64(file);
+  }
+
+  /* ---- 6. Form Submission ---- */
+  if (form) {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      if (!formErrorBox || !formErrorMessage || !submitBtn) return;
+
+      formErrorBox.style.display = 'none';
+
+      // Gather input values
+      const teamName = document.getElementById('teamName')?.value.trim() || '';
+      const teamSize = Number(teamSizeInput?.value || '2');
+      const txnId = document.getElementById('txnId')?.value.trim() || '';
+      const termsConfirmed = document.getElementById('termsConfirmed')?.checked || false;
+
+      // Member 1
+      const m1_name = document.getElementById('m1_name')?.value.trim() || '';
+      const m1_email = document.getElementById('m1_email')?.value.trim() || '';
+      const m1_college = document.getElementById('m1_college')?.value.trim() || '';
+      const m1_phone = document.getElementById('m1_phone')?.value.trim() || '';
+      const m1_year = document.getElementById('m1_year')?.value || '';
+      const m1_dept = document.getElementById('m1_dept')?.value.trim() || '';
+      const m1_parent_phone = document.getElementById('m1_parent_phone')?.value.trim() || '';
+      const m1_hod_phone = document.getElementById('m1_hod_phone')?.value.trim() || '';
+
+      // Member 2
+      const m2_name = document.getElementById('m2_name')?.value.trim() || '';
+      const m2_email = document.getElementById('m2_email')?.value.trim() || '';
+      const m2_college = document.getElementById('m2_college')?.value.trim() || '';
+      const m2_phone = document.getElementById('m2_phone')?.value.trim() || '';
+      const m2_year = document.getElementById('m2_year')?.value || '';
+      const m2_dept = document.getElementById('m2_dept')?.value.trim() || '';
+      const m2_parent_phone = document.getElementById('m2_parent_phone')?.value.trim() || '';
+      const m2_hod_phone = document.getElementById('m2_hod_phone')?.value.trim() || '';
+
+      // Member 3
+      const m3_name = document.getElementById('m3_name')?.value.trim() || '';
+      const m3_email = document.getElementById('m3_email')?.value.trim() || '';
+      const m3_college = document.getElementById('m3_college')?.value.trim() || '';
+      const m3_phone = document.getElementById('m3_phone')?.value.trim() || '';
+      const m3_year = document.getElementById('m3_year')?.value || '';
+      const m3_dept = document.getElementById('m3_dept')?.value.trim() || '';
+      const m3_parent_phone = document.getElementById('m3_parent_phone')?.value.trim() || '';
+      const m3_hod_phone = document.getElementById('m3_hod_phone')?.value.trim() || '';
+
+      // Validate
+      let hasError = false;
+      const allFields = [
+        'teamName', 'txnId', 'terms', 'payment',
+        'm1_name', 'm1_email', 'm1_college', 'm1_phone', 'm1_year', 'm1_dept', 'm1_id',
+        'm2_name', 'm2_email', 'm2_college', 'm2_phone', 'm2_year', 'm2_dept', 'm2_id',
+        'm3_name', 'm3_email', 'm3_college', 'm3_phone', 'm3_year', 'm3_dept', 'm3_id'
+      ];
+      clearErrors(allFields);
+
+      if (!teamName || teamName.length < 2) {
+        setError('teamName', 'Team name is required (min 2 characters).');
+        hasError = true;
+      }
+      // Member 1 validation
+      if (!m1_name) { setError('m1_name', 'Leader full name is required.'); hasError = true; }
+      if (!m1_college || m1_college.length < 3) { setError('m1_college', 'College / University name is required.'); hasError = true; }
+      if (!m1_email || !isValidEmail(m1_email)) { setError('m1_email', 'Valid email address is required.'); hasError = true; }
+      if (!m1_phone || !isValidPhone(m1_phone)) { setError('m1_phone', 'Enter a valid 10-digit Indian mobile number.'); hasError = true; }
+      if (!m1_year) { setError('m1_year', 'Select year of study.'); hasError = true; }
+      if (!m1_dept) { setError('m1_dept', 'Department is required.'); hasError = true; }
+      if (!files.m1_id) { setError('m1_id', 'Leader college ID card file is required.'); hasError = true; }
+
+      // Member 2 validation
+      if (!m2_name) { setError('m2_name', 'Member 2 full name is required.'); hasError = true; }
+      if (!m2_college || m2_college.length < 3) { setError('m2_college', 'College / University name is required.'); hasError = true; }
+      if (!m2_email || !isValidEmail(m2_email)) { setError('m2_email', 'Valid email address is required.'); hasError = true; }
+      if (!m2_phone || !isValidPhone(m2_phone)) { setError('m2_phone', 'Enter a valid 10-digit mobile number.'); hasError = true; }
+      if (!m2_year) { setError('m2_year', 'Select year of study.'); hasError = true; }
+      if (!m2_dept) { setError('m2_dept', 'Department is required.'); hasError = true; }
+      if (!files.m2_id) { setError('m2_id', 'Member 2 college ID card file is required.'); hasError = true; }
+
+      // Member 3 validation
+      if (teamSize === 3) {
+        if (!m3_name) { setError('m3_name', 'Member 3 full name is required.'); hasError = true; }
+        if (!m3_college || m3_college.length < 3) { setError('m3_college', 'College / University name is required.'); hasError = true; }
+        if (!m3_email || !isValidEmail(m3_email)) { setError('m3_email', 'Valid email address is required.'); hasError = true; }
+        if (!m3_phone || !isValidPhone(m3_phone)) { setError('m3_phone', 'Enter a valid 10-digit mobile number.'); hasError = true; }
+        if (!m3_year) { setError('m3_year', 'Select year of study.'); hasError = true; }
+        if (!m3_dept) { setError('m3_dept', 'Department is required.'); hasError = true; }
+        if (!files.m3_id) { setError('m3_id', 'Member 3 college ID card file is required.'); hasError = true; }
+      }
+
+      // Payment validation
+      if (!txnId || txnId.length < 5) {
+        setError('txnId', 'Please enter a valid bank transaction / UTR reference ID.');
+        hasError = true;
+      }
+      if (!files.payment) {
+        setError('payment', 'Payment screenshot is required to verify the ₹299 entry fee.');
+        hasError = true;
+      }
+
+      // Declaration
+      if (!termsConfirmed) {
+        setError('terms', 'You must agree to the declaration and event rules.');
+        hasError = true;
+      }
+
+      if (hasError) {
+        formErrorMessage.textContent = 'Please correct the highlighted fields above.';
+        formErrorBox.style.display = 'flex';
+        formErrorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      // Start submission process
+      const origBtnHtml = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite; vertical-align:middle; margin-right:8px;"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+        Uploading Files &amp; Securing Registration...
+      `;
+
+      try {
+        // Upload ID files and payment screenshot
+        const [m1_id_url, m2_id_url, m3_id_url, payment_url] = await Promise.all([
+          uploadFileOrBase64(files.m1_id, 'id-cards'),
+          uploadFileOrBase64(files.m2_id, 'id-cards'),
+          teamSize === 3 && files.m3_id ? uploadFileOrBase64(files.m3_id, 'id-cards') : Promise.resolve(''),
+          uploadFileOrBase64(files.payment, 'payment-receipts')
+        ]);
+
+        const generatedRegId = 'SOLVIX-26-' + Math.floor(1000 + Math.random() * 9000);
+        const registrationTimestamp = new Date().toISOString();
+
+        const memberList = [
+          {
+            member_number: 1,
+            name: m1_name,
+            email: m1_email,
+            phone: m1_phone,
+            mobile: m1_phone,
+            year: m1_year,
+            department: m1_dept,
+            college: m1_college,
+            parent_mobile: m1_parent_phone,
+            incharge_mobile: m1_hod_phone,
+            id_card_url: m1_id_url,
+            is_leader: true
+          },
+          {
+            member_number: 2,
+            name: m2_name,
+            email: m2_email,
+            phone: m2_phone,
+            mobile: m2_phone,
+            year: m2_year,
+            department: m2_dept,
+            college: m2_college,
+            parent_mobile: m2_parent_phone,
+            incharge_mobile: m2_hod_phone,
+            id_card_url: m2_id_url,
+            is_leader: false
+          }
+        ];
+
+        if (teamSize === 3) {
+          memberList.push({
+            member_number: 3,
+            name: m3_name,
+            email: m3_email,
+            phone: m3_phone,
+            mobile: m3_phone,
+            year: m3_year,
+            department: m3_dept,
+            college: m3_college,
+            parent_mobile: m3_parent_phone,
+            incharge_mobile: m3_hod_phone,
+            id_card_url: m3_id_url,
+            is_leader: false
           });
         }
-      });
-    }
 
-    if (dtMembersList) {
-      dtMembersList.innerHTML = membersList.map(function(m) {
-        return `
-          <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-            <div>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <strong style="color:var(--bone); font-size:14px;">${escapeHtml(m.name)}</strong>
-                ${m.is_leader ? '<span class="chip" style="background:rgba(144,64,237,0.2); color:var(--violet); font-size:10px;">LEADER</span>' : ''}
-              </div>
-              <div style="font-size:12px; color:var(--ash); margin-top:2px;">
-                ${escapeHtml(m.college || '')} • ${escapeHtml(m.dept || '')} • ${escapeHtml(m.year || '')} • <a href="tel:${m.phone}" style="color:var(--bone);">${escapeHtml(m.phone)}</a> • <a href="mailto:${m.email}" style="color:var(--violet);">${escapeHtml(m.email)}</a>
-              </div>
-            </div>
-            <div>
-              ${m.id_url ? `
-                <a href="${m.id_url}" target="_blank" rel="noopener" class="action-icon-btn" style="text-decoration:none; font-size:11px;">
-                  View ID Card &rarr;
-                </a>
-              ` : '<span style="font-size:11px; color:var(--ash-dim);">No ID Uploaded</span>'}
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
+        const teamData = {
+          id: generatedRegId,
+          registration_id: generatedRegId,
+          team_name: teamName,
+          // Kept for compatibility with existing database schemas; participant colleges are authoritative.
+          college_name: m1_college,
+          leader_college: m1_college,
+          team_size: teamSize,
+          leader_name: m1_name,
+          leader_email: m1_email,
+          leader_phone: m1_phone,
+          leader_mobile: m1_phone,
+          leader_year: m1_year,
+          leader_department: m1_dept,
+          leader_parent_mobile: m1_parent_phone,
+          leader_incharge_mobile: m1_hod_phone,
+          leader_id_card_url: m1_id_url,
+          transaction_id: txnId,
+          payment_proof_url: payment_url,
+          payment_screenshot_url: payment_url,
+          whatsapp_confirmed: document.getElementById('waConfirmed')?.checked || false,
+          whatsapp_joined: document.getElementById('waConfirmed')?.checked || false,
+          status: 'pending',
+          created_at: registrationTimestamp,
+          members: memberList
+        };
 
-    if (proofUrl) {
-      if (dtPaymentImg) {
-        dtPaymentImg.src = proofUrl;
-        dtPaymentImg.style.display = 'block';
+        // 1. Try Supabase Insert
+        if (supabaseClient) {
+          try {
+            const { data: insertedTeam, error: teamError } = await supabaseClient
+              .from('teams')
+              .insert([{
+                registration_id: generatedRegId,
+                team_name: teamName,
+                college_name: m1_college,
+                team_size: teamSize,
+                leader_name: m1_name,
+                leader_email: m1_email,
+                leader_phone: m1_phone,
+                transaction_id: txnId,
+                payment_proof_url: payment_url,
+                payment_screenshot_url: payment_url,
+                whatsapp_joined: teamData.whatsapp_joined,
+                status: 'pending'
+              }])
+              .select()
+              .single();
+
+            if (!teamError && insertedTeam) {
+              // Insert members into team_members table if present
+              const membersToInsert = memberList.map(function(m) {
+                return {
+                  team_id: insertedTeam.id,
+                  name: m.name,
+                  email: m.email,
+                  phone: m.phone,
+                  year: m.year,
+                  college: m.college,
+                  department: m.department,
+                  id_card_url: m.id_card_url,
+                  is_leader: m.is_leader
+                };
+              });
+
+              try {
+                await supabaseClient.from('team_members').insert(membersToInsert);
+              } catch (memErr) {
+                console.warn('team_members insert fallback:', memErr);
+              }
+            }
+          } catch (supaErr) {
+            console.warn('Supabase teams insert fallback:', supaErr);
+          }
+        }
+
+        // 2. Persist to LocalStorage for offline resilience & immediate Admin view
+        try {
+          const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+          let existing = [];
+          if (raw) {
+            existing = JSON.parse(raw);
+          }
+          existing.unshift(teamData);
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(existing));
+          localStorage.setItem('hackrush_2k26_local_teams', JSON.stringify(existing));
+        } catch (storageErr) {
+          console.error('LocalStorage write error:', storageErr);
+        }
+
+        // 3. Confetti Celebration
+        try {
+          if (window.confetti) {
+            window.confetti({
+              particleCount: 120,
+              spread: 70,
+              origin: { y: 0.6 },
+              colors: ['#9040ED', '#A45CF2', '#10B981', '#FFFFFF']
+            });
+          }
+        } catch (cErr) {}
+
+        // 4. Update Modal Display
+        if (resRegId) resRegId.textContent = generatedRegId;
+        if (resTeamName) resTeamName.textContent = teamName;
+        if (resCollege) resCollege.textContent = [m1_college, m2_college, teamSize === 3 ? m3_college : ''].filter(Boolean).join(' / ');
+        if (resTeamSize) resTeamSize.textContent = teamSize + ' Members';
+        if (resLeaderName) resLeaderName.textContent = m1_name;
+        if (resLeaderPhone) resLeaderPhone.textContent = m1_phone;
+        if (resLeaderEmail) resLeaderEmail.textContent = m1_email;
+        if (resTxnId) resTxnId.textContent = txnId;
+
+        if (successModal) {
+          successModal.classList.add('active');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Refresh slots monitor
+        updateAvailableSlots();
+
+      } catch (err) {
+        console.error('Registration error:', err);
+        formErrorMessage.textContent = err?.message || 'Failed to submit registration. Please try again or contact a coordinator.';
+        formErrorBox.style.display = 'flex';
+        formErrorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = origBtnHtml;
       }
-      if (dtPaymentLink) {
-        dtPaymentLink.innerHTML = `
-          <a href="${proofUrl}" target="_blank" rel="noopener" class="btn btn--ghost btn--sm" style="margin-top:8px;">
-            Open Original Image in New Tab &rarr;
-          </a>
-        `;
-      }
-    } else {
-      if (dtPaymentImg) dtPaymentImg.style.display = 'none';
-      if (dtPaymentLink) dtPaymentLink.textContent = 'No payment proof attached.';
-    }
-
-    if (dtActionsBar) {
-      dtActionsBar.innerHTML = `
-        <button class="btn btn--ghost btn--sm" id="modalVerifyBtn" style="color:#10B981; border-color:#10B981;">
-          &check; Mark as Verified
-        </button>
-        <button class="btn btn--ghost btn--sm" id="modalRejectBtn" style="color:#EF4444; border-color:#EF4444;">
-          &times; Mark as Rejected
-        </button>
-      `;
-
-      document.getElementById('modalVerifyBtn')?.addEventListener('click', async function() {
-        await updateStatus(team.id, 'approved');
-        showTeamDetails(team.id);
-      });
-      document.getElementById('modalRejectBtn')?.addEventListener('click', async function() {
-        await updateStatus(team.id, 'rejected');
-        showTeamDetails(team.id);
-      });
-    }
-
-    detailModal.classList.add('active');
+    });
   }
 
-  // Event Listeners
-  searchInput?.addEventListener('input', renderTable);
-  statusFilter?.addEventListener('change', renderTable);
-  refreshBtn?.addEventListener('click', loadRegistrations);
-
-  regTableBody?.addEventListener('click', async function(e) {
-    const target = e.target;
-    const approveBtn = target.closest('.btn-approve');
-    const rejectBtn = target.closest('.btn-reject');
-    const detailsBtn = target.closest('.btn-details');
-
-    if (approveBtn) {
-      const id = approveBtn.dataset.id;
-      if (id && confirm(`Verify and approve registration for ${id}?`)) {
-        await updateStatus(id, 'approved');
-      }
-    } else if (rejectBtn) {
-      const id = rejectBtn.dataset.id;
-      if (id && confirm(`Reject registration for ${id}?`)) {
-        await updateStatus(id, 'rejected');
-      }
-    } else if (detailsBtn) {
-      const id = detailsBtn.dataset.id;
-      if (id) showTeamDetails(id);
-    }
+  // Print button
+  printBtn && printBtn.addEventListener('click', function() {
+    window.print();
   });
-
-  closeDetailBtn?.addEventListener('click', function() {
-    detailModal?.classList.remove('active');
-  });
-
-  // Export to CSV
-  exportCsvBtn?.addEventListener('click', function() {
-    if (allTeams.length === 0) {
-      alert('No registrations available to export.');
-      return;
-    }
-
-    const headers = [
-      'Registration ID',
-      'Team Name',
-      'College Name',
-      'Team Size',
-      'Status',
-      'Leader Name',
-      'Leader Email',
-      'Leader Phone',
-      'Member 2 Name',
-      'Member 2 Phone',
-      'Member 3 Name',
-      'Member 3 Phone',
-      'Transaction ID',
-      'WhatsApp Joined',
-      'Created At'
-    ];
-
-    const rows = allTeams.map(function(t) {
-      const regId = t.registration_id || t.id;
-      const college = t.leader_college || t.college_name || '';
-      const leaderPhone = t.leader_mobile || t.leader_phone || '';
-      // The leader is stored separately; members contains the remaining participants
-      // after the Supabase query is normalized below.
-      const members = (t.members || []).filter(function(m) {
-        return (m.member_name || m.name || '') !== (t.leader_name || '');
-      });
-      const m2 = members[0] || {};
-      const m3 = members[1] || {};
-
-      return [
-        regId,
-        `"${(t.team_name || '').replace(/"/g, '""')}"`,
-        `"${college.replace(/"/g, '""')}"`,
-        t.team_size,
-        t.status,
-        `"${(t.leader_name || '').replace(/"/g, '""')}"`,
-        t.leader_email,
-        leaderPhone,
-        `"${(m2.member_name || m2.name || '').replace(/"/g, '""')}"`,
-        m2.mobile || m2.phone || '',
-        `"${(m3.member_name || m3.name || '').replace(/"/g, '""')}"`,
-        m3.mobile || m3.phone || '',
-        `"${(t.transaction_id || '').replace(/"/g, '""')}"`,
-        t.whatsapp_joined ? 'Yes' : 'No',
-        t.created_at
-      ];
-    });
-
-    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `SOLVIX26_Registrations_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  });
-
-  // SQL Modal
-  showSqlBtn?.addEventListener('click', function() {
-    if (sqlCodeBlock) sqlCodeBlock.textContent = SUPABASE_SCHEMA_SQL.trim();
-    sqlModal?.classList.add('active');
-  });
-
-  closeSqlBtn?.addEventListener('click', function() {
-    sqlModal?.classList.remove('active');
-  });
-
-  copySqlBtn?.addEventListener('click', function() {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(SUPABASE_SCHEMA_SQL.trim()).then(function() {
-        if (copySqlBtn) {
-          copySqlBtn.textContent = 'Copied to Clipboard!';
-          setTimeout(function() { copySqlBtn.textContent = 'Copy SQL'; }, 2000);
-        }
-      });
-    }
-  });
-
-  // Supabase Config Modal Controls
-  showSupaConfigBtn?.addEventListener('click', function() {
-    const cfg = getActiveSupabaseConfig();
-    if (cfgSupaUrl) cfgSupaUrl.value = cfg ? cfg.url : '';
-    if (cfgSupaKey) cfgSupaKey.value = cfg ? cfg.anonKey : '';
-    if (supaTestFeedback) {
-      supaTestFeedback.style.display = 'none';
-      supaTestFeedback.textContent = '';
-    }
-    updateSupaBadge();
-    supaConfigModal?.classList.add('active');
-  });
-
-  closeSupaConfigBtn?.addEventListener('click', function() {
-    supaConfigModal?.classList.remove('active');
-  });
-
-  // Test Supabase Connection
-  testSupaConfigBtn?.addEventListener('click', async function() {
-    const url = cfgSupaUrl?.value.trim() || '';
-    const key = cfgSupaKey?.value.trim() || '';
-
-    if (!url || !key) {
-      if (supaTestFeedback) {
-        supaTestFeedback.style.display = 'block';
-        supaTestFeedback.style.color = '#FCA5A5';
-        supaTestFeedback.textContent = 'Please enter both the Project URL and Anon Key.';
-      }
-      return;
-    }
-
-    if (supaTestFeedback) {
-      supaTestFeedback.style.display = 'block';
-      supaTestFeedback.style.color = 'var(--ash)';
-      supaTestFeedback.textContent = 'Testing connection to Supabase...';
-    }
-
-    try {
-      if (!window.supabase) {
-        throw new Error('Supabase client library not loaded. Check internet connection.');
-      }
-      const testClient = window.supabase.createClient(url, key);
-      const { data, error } = await testClient.from('teams').select('id').limit(1);
-
-      if (error) {
-        if (error.code === 'PGRST116' || error.message.includes('relation "public.teams" does not exist')) {
-          supaTestFeedback.style.color = '#FBBF24';
-          supaTestFeedback.innerHTML = 'Connected to Supabase! However, table <code>teams</code> is missing. Click <b>"Supabase SQL Setup"</b> and run the script in your Supabase SQL Editor.';
-        } else {
-          supaTestFeedback.style.color = '#FCA5A5';
-          supaTestFeedback.textContent = 'Connection test failed: ' + error.message;
-        }
-      } else {
-        supaTestFeedback.style.color = '#34D399';
-        supaTestFeedback.textContent = 'Connection successful! Successfully reached Supabase database.';
-      }
-    } catch (err) {
-      supaTestFeedback.style.color = '#FCA5A5';
-      supaTestFeedback.textContent = 'Connection error: ' + (err.message || err);
-    }
-  });
-
-  // Save Supabase Configuration
-  saveSupaConfigBtn?.addEventListener('click', function() {
-    const url = cfgSupaUrl?.value.trim() || '';
-    const key = cfgSupaKey?.value.trim() || '';
-
-    if (!url || !key) {
-      alert('Please provide both Project URL and Anon Key.');
-      return;
-    }
-
-    localStorage.setItem('hackrush_supabase_config', JSON.stringify({ url: url, anonKey: key }));
-    initSupabase();
-    loadRegistrations();
-    updateSupaBadge();
-
-    if (supaTestFeedback) {
-      supaTestFeedback.style.display = 'block';
-      supaTestFeedback.style.color = '#34D399';
-      supaTestFeedback.textContent = 'Configuration saved! Real-time Supabase sync is now active.';
-    }
-
-    setTimeout(function() {
-      supaConfigModal?.classList.remove('active');
-    }, 1200);
-  });
-
-  // Disconnect / Clear Configuration
-  clearSupaConfigBtn?.addEventListener('click', function() {
-    if (confirm('Disconnect Supabase and revert to browser LocalStorage?')) {
-      localStorage.removeItem('hackrush_supabase_config');
-      if (cfgSupaUrl) cfgSupaUrl.value = '';
-      if (cfgSupaKey) cfgSupaKey.value = '';
-      initSupabase();
-      loadRegistrations();
-      updateSupaBadge();
-      if (supaTestFeedback) {
-        supaTestFeedback.style.display = 'block';
-        supaTestFeedback.style.color = '#FBBF24';
-        supaTestFeedback.textContent = 'Disconnected. App will now use local storage fallback.';
-      }
-    }
-  });
-
-  window.addEventListener('click', function(e) {
-    if (e.target === detailModal) detailModal.classList.remove('active');
-    if (e.target === sqlModal) sqlModal.classList.remove('active');
-    if (e.target === supaConfigModal) supaConfigModal.classList.remove('active');
-  });
-
-  window.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      detailModal?.classList.remove('active');
-      sqlModal?.classList.remove('active');
-      supaConfigModal?.classList.remove('active');
-    }
-  });
-
-  // Start
-  initSupabase();
-  checkAuth();
-})();
+});
 </script>
 
 </body>
