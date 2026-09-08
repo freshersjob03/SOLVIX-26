@@ -14,6 +14,10 @@
 
 <!-- Supabase CDN for live database sync if configured -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Optional built-in Supabase configuration. Keep credentials in this page or leave blank for local fallback.
+  window.SOLVIX_SUPABASE_CONFIG = window.SOLVIX_SUPABASE_CONFIG || { url: '', anonKey: '' };
+</script>
 
 <style>
 /* ==========================================================================
@@ -490,7 +494,7 @@ body {
 }
 
 /* Modals */
-#detailModal, #sqlModal {
+#detailModal, #sqlModal, #supaConfigModal {
   display: none;
   position: fixed;
   inset: 0;
@@ -502,7 +506,7 @@ body {
   padding: 40px 16px;
 }
 
-#detailModal.active, #sqlModal.active {
+#detailModal.active, #sqlModal.active, #supaConfigModal.active {
   display: grid;
   place-items: center;
 }
@@ -605,6 +609,10 @@ body {
       </div>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button id="showSupaConfigBtn" class="btn btn--ghost btn--sm" style="border-color:rgba(144,64,237,0.4); color:var(--violet);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Connect Supabase
+        </button>
         <button id="showSqlBtn" class="btn btn--ghost btn--sm">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7c0-2.2 3.6-4 8-4s8 1.8 8 4-3.6 4-8 4-8-1.8-8-4zM4 7v10c0 2.2 3.6 4 8 4s8-1.8 8-4V7"/></svg>
           Supabase SQL Setup
@@ -736,6 +744,60 @@ body {
   </div>
 </div>
 
+<!-- ================= SUPABASE CONNECTION MODAL ================= -->
+<div id="supaConfigModal">
+  <div class="detail-card" style="max-width:620px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:36px; height:36px; border-radius:50%; background:rgba(144, 64, 237, 0.15); border:1px solid var(--violet); color:var(--violet); display:grid; place-items:center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <h3 style="font-family:var(--f-display); font-size:22px; margin:0; color:var(--bone);">Supabase Settings</h3>
+      </div>
+      <button id="closeSupaConfigBtn" class="btn btn--ghost btn--sm">&times; Close</button>
+    </div>
+
+    <div id="supaStatusBadge" style="margin-bottom:18px; padding:12px 16px; border-radius:10px; font-size:13px; font-family:var(--f-mono); background:rgba(255,255,255,0.03); border:1px solid var(--border);">
+      Checking configuration status...
+    </div>
+
+    <p style="color:var(--ash); font-size:13.5px; line-height:1.6; margin:0 0 16px;">
+      Enter your Supabase project credentials. You can copy these from your <a href="https://supabase.com/dashboard" target="_blank" rel="noopener" style="color:var(--violet); text-decoration:underline;">Supabase Dashboard</a> &rarr; <b>Project Settings &rarr; API</b>. Once connected, registrations and live slot counters immediately sync across the whole app.
+    </p>
+
+    <div style="display:grid; gap:14px; margin-bottom:20px;">
+      <div class="field">
+        <label for="cfgSupaUrl">Project URL</label>
+        <input type="text" id="cfgSupaUrl" placeholder="https://xyzabcdefghijklmnop.supabase.co" autocomplete="off">
+        <small style="color:var(--ash-dim); font-size:11px; margin-top:3px;">Your Supabase Project URL (e.g. https://your-ref.supabase.co)</small>
+      </div>
+
+      <div class="field">
+        <label for="cfgSupaKey">Anon Public Key</label>
+        <input type="text" id="cfgSupaKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." autocomplete="off">
+        <small style="color:var(--ash-dim); font-size:11px; margin-top:3px;">Your project's anon / public API key</small>
+      </div>
+    </div>
+
+    <div id="supaTestFeedback" style="display:none; margin-bottom:16px; font-size:12.5px; font-family:var(--f-mono);"></div>
+
+    <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; border-top:1px solid var(--hair-2); padding-top:16px;">
+      <button type="button" id="clearSupaConfigBtn" class="btn btn--ghost btn--sm" style="color:#FCA5A5; border-color:rgba(239,68,68,0.3);">
+        Disconnect / Reset
+      </button>
+
+      <div style="display:flex; gap:10px;">
+        <button type="button" id="testSupaConfigBtn" class="btn btn--ghost btn--sm">
+          Test Connection
+        </button>
+        <button type="button" id="saveSupaConfigBtn" class="btn btn--primary btn--sm">
+          Save &amp; Connect
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ================= SQL SETUP MODAL ================= -->
 <div id="sqlModal">
   <div class="detail-card" style="max-width:680px;">
@@ -767,44 +829,61 @@ CREATE TABLE IF NOT EXISTS public.teams (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     registration_id TEXT UNIQUE NOT NULL,
     team_name TEXT NOT NULL,
+    college_name TEXT NOT NULL,
     team_size INTEGER NOT NULL CHECK (team_size IN (2, 3)),
     leader_name TEXT NOT NULL,
-    leader_study_year TEXT NOT NULL,
-    leader_college TEXT NOT NULL,
-    leader_department TEXT NOT NULL,
-    leader_mobile TEXT NOT NULL,
     leader_email TEXT NOT NULL,
-    leader_parent_mobile TEXT NOT NULL,
-    leader_hod_mobile TEXT NOT NULL,
+    leader_phone TEXT NOT NULL,
+    leader_year TEXT NOT NULL,
+    leader_department TEXT NOT NULL,
+    leader_parent_mobile TEXT DEFAULT '',
+    leader_incharge_mobile TEXT DEFAULT '',
     leader_id_card_url TEXT NOT NULL,
-    payment_screenshot_url TEXT NOT NULL,
     transaction_id TEXT DEFAULT '',
-    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+    payment_proof_url TEXT NOT NULL,
     whatsapp_joined BOOLEAN NOT NULL DEFAULT false,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS public.team_members (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     team_id UUID NOT NULL REFERENCES public.teams(id) ON DELETE CASCADE,
-    member_no INTEGER NOT NULL,
-    member_name TEXT NOT NULL,
-    study_year TEXT NOT NULL,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    year TEXT NOT NULL,
     college TEXT NOT NULL,
     department TEXT NOT NULL,
-    mobile TEXT NOT NULL,
-    email TEXT NOT NULL,
-    parent_mobile TEXT NOT NULL,
-    hod_mobile TEXT NOT NULL,
     id_card_url TEXT NOT NULL,
+    is_leader BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Required public storage buckets for registration uploads.
+INSERT INTO storage.buckets (id, name, public)
+VALUES
+    ('id-cards', 'id-cards', true),
+    ('payment-receipts', 'payment-receipts', true)
+ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public;
 
 ALTER TABLE public.teams ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Allow public insert into teams" ON public.teams;
+DROP POLICY IF EXISTS "Allow public insert into team_members" ON public.team_members;
+DROP POLICY IF EXISTS "Allow public read teams" ON public.teams;
+DROP POLICY IF EXISTS "Allow public update teams" ON public.teams;
+DROP POLICY IF EXISTS "Allow public read team_members" ON public.team_members;
+DROP POLICY IF EXISTS "Allow public upload registration files" ON storage.objects;
+
 CREATE POLICY "Allow public insert into teams" ON public.teams FOR INSERT TO anon, authenticated WITH CHECK (true);
 CREATE POLICY "Allow public insert into team_members" ON public.team_members FOR INSERT TO anon, authenticated WITH CHECK (true);
+CREATE POLICY "Allow public read teams" ON public.teams FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "Allow public update teams" ON public.teams FOR UPDATE TO anon, authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public read team_members" ON public.team_members FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "Allow public upload registration files" ON storage.objects FOR INSERT TO anon, authenticated WITH CHECK (bucket_id IN ('id-cards', 'payment-receipts'));
+
 CREATE POLICY "Allow authenticated full access to teams" ON public.teams FOR ALL TO authenticated USING (true);
 CREATE POLICY "Allow authenticated full access to team_members" ON public.team_members FOR ALL TO authenticated USING (true);`;
 
@@ -914,23 +993,74 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
   const copySqlBtn = document.getElementById('copySqlBtn');
   const sqlCodeBlock = document.getElementById('sqlCodeBlock');
 
+  // Supabase Config Modal Elements
+  const supaConfigModal = document.getElementById('supaConfigModal');
+  const showSupaConfigBtn = document.getElementById('showSupaConfigBtn');
+  const closeSupaConfigBtn = document.getElementById('closeSupaConfigBtn');
+  const cfgSupaUrl = document.getElementById('cfgSupaUrl');
+  const cfgSupaKey = document.getElementById('cfgSupaKey');
+  const supaStatusBadge = document.getElementById('supaStatusBadge');
+  const supaTestFeedback = document.getElementById('supaTestFeedback');
+  const testSupaConfigBtn = document.getElementById('testSupaConfigBtn');
+  const saveSupaConfigBtn = document.getElementById('saveSupaConfigBtn');
+  const clearSupaConfigBtn = document.getElementById('clearSupaConfigBtn');
+
   let allTeams = [];
   let supabaseClient = null;
+
+  // Supabase Config Resolver
+  function getActiveSupabaseConfig() {
+    // 1. Check window.SOLVIX_SUPABASE_CONFIG from supabase-config.js
+    if (window.SOLVIX_SUPABASE_CONFIG && window.SOLVIX_SUPABASE_CONFIG.url && window.SOLVIX_SUPABASE_CONFIG.anonKey) {
+      const u = window.SOLVIX_SUPABASE_CONFIG.url.trim();
+      const k = window.SOLVIX_SUPABASE_CONFIG.anonKey.trim();
+      if (u.length > 5 && k.length > 10) {
+        return { url: u, anonKey: k, source: 'supabase-config.js' };
+      }
+    }
+    // 2. Check localStorage
+    try {
+      const stored = localStorage.getItem('hackrush_supabase_config');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.url && parsed.anonKey) {
+          return { url: parsed.url.trim(), anonKey: parsed.anonKey.trim(), source: 'Browser Storage' };
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function updateSupaBadge() {
+    if (!supaStatusBadge) return;
+    const cfg = getActiveSupabaseConfig();
+    if (cfg) {
+      supaStatusBadge.style.background = 'rgba(16, 185, 129, 0.12)';
+      supaStatusBadge.style.border = '1px solid rgba(16, 185, 129, 0.4)';
+      supaStatusBadge.style.color = '#34D399';
+      supaStatusBadge.innerHTML = `<span style="font-weight:700;">&#x25CF; CONNECTED</span> &mdash; ${cfg.url.substring(0, 38)}... <span style="opacity:0.75;">(${cfg.source})</span>`;
+    } else {
+      supaStatusBadge.style.background = 'rgba(245, 158, 11, 0.1)';
+      supaStatusBadge.style.border = '1px solid rgba(245, 158, 11, 0.3)';
+      supaStatusBadge.style.color = '#FBBF24';
+      supaStatusBadge.innerHTML = `<span style="font-weight:700;">&#x25CB; OFFLINE MODE</span> &mdash; Operating on local storage fallback. Enter keys below or edit <code>supabase-config.js</code> to enable live database sync.`;
+    }
+  }
 
   // Supabase Client Initialization
   function initSupabase() {
     try {
-      let config = null;
-      const stored = localStorage.getItem('hackrush_supabase_config');
-      if (stored) {
-        config = JSON.parse(stored);
-      }
+      const config = getActiveSupabaseConfig();
       if (config && config.url && config.anonKey && window.supabase) {
         supabaseClient = window.supabase.createClient(config.url, config.anonKey);
+      } else {
+        supabaseClient = null;
       }
     } catch (e) {
       console.warn('Supabase initialization error, falling back to local storage:', e);
+      supabaseClient = null;
     }
+    updateSupaBadge();
   }
 
   // Auth Functions
@@ -987,7 +1117,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
 
     // 2. Fallback to LocalStorage
     try {
-      const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const raw = localStorage.getItem('solvix_registrations_v1') || localStorage.getItem(LOCAL_STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -1169,6 +1299,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
       // 3. Update LocalStorage
       try {
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allTeams));
+        localStorage.setItem('solvix_registrations_v1', JSON.stringify(allTeams));
       } catch (e) {
         console.warn('LocalStorage save failed:', e);
       }
@@ -1213,14 +1344,19 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
       `;
     }
 
+        const leaderMember = (team.members || []).find(function(m) {
+      return m.is_leader === true || m.is_leader === 'true';
+    });
+
     const membersList = [
       {
-        name: team.leader_name,
-        email: team.leader_email,
-        phone: team.leader_mobile || team.leader_phone || '',
-        year: team.leader_study_year,
-        dept: team.leader_department,
-        id_url: team.leader_id_card_url,
+        name: leaderMember?.name || team.leader_name || '',
+        email: leaderMember?.email || team.leader_email || '',
+        phone: leaderMember?.phone || team.leader_phone || '',
+        year: leaderMember?.year || team.leader_year || '',
+        college: leaderMember?.college || team.college_name || '',
+        dept: leaderMember?.department || team.leader_department || '',
+        id_url: leaderMember?.id_card_url || '',
         is_leader: true,
       }
     ];
@@ -1234,6 +1370,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
             email: m.email,
             phone: m.mobile || m.phone || '',
             year: m.study_year || m.year || '',
+            college: m.college || '',
             dept: m.department,
             id_url: m.id_card_url,
             is_leader: false,
@@ -1252,7 +1389,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
                 ${m.is_leader ? '<span class="chip" style="background:rgba(144,64,237,0.2); color:var(--violet); font-size:10px;">LEADER</span>' : ''}
               </div>
               <div style="font-size:12px; color:var(--ash); margin-top:2px;">
-                ${escapeHtml(m.dept || '')} • ${escapeHtml(m.year || '')} • <a href="tel:${m.phone}" style="color:var(--bone);">${escapeHtml(m.phone)}</a> • <a href="mailto:${m.email}" style="color:var(--violet);">${escapeHtml(m.email)}</a>
+                ${escapeHtml(m.college || '')} • ${escapeHtml(m.dept || '')} • ${escapeHtml(m.year || '')} • <a href="tel:${m.phone}" style="color:var(--bone);">${escapeHtml(m.phone)}</a> • <a href="mailto:${m.email}" style="color:var(--violet);">${escapeHtml(m.email)}</a>
               </div>
             </div>
             <div>
@@ -1367,7 +1504,11 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
       const regId = t.registration_id || t.id;
       const college = t.leader_college || t.college_name || '';
       const leaderPhone = t.leader_mobile || t.leader_phone || '';
-      const members = t.members || [];
+      // The leader is stored separately; members contains the remaining participants
+      // after the Supabase query is normalized below.
+      const members = (t.members || []).filter(function(m) {
+        return (m.member_name || m.name || '') !== (t.leader_name || '');
+      });
       const m2 = members[0] || {};
       const m3 = members[1] || {};
 
@@ -1423,15 +1564,122 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
     }
   });
 
+  // Supabase Config Modal Controls
+  showSupaConfigBtn?.addEventListener('click', function() {
+    const cfg = getActiveSupabaseConfig();
+    if (cfgSupaUrl) cfgSupaUrl.value = cfg ? cfg.url : '';
+    if (cfgSupaKey) cfgSupaKey.value = cfg ? cfg.anonKey : '';
+    if (supaTestFeedback) {
+      supaTestFeedback.style.display = 'none';
+      supaTestFeedback.textContent = '';
+    }
+    updateSupaBadge();
+    supaConfigModal?.classList.add('active');
+  });
+
+  closeSupaConfigBtn?.addEventListener('click', function() {
+    supaConfigModal?.classList.remove('active');
+  });
+
+  // Test Supabase Connection
+  testSupaConfigBtn?.addEventListener('click', async function() {
+    const url = cfgSupaUrl?.value.trim() || '';
+    const key = cfgSupaKey?.value.trim() || '';
+
+    if (!url || !key) {
+      if (supaTestFeedback) {
+        supaTestFeedback.style.display = 'block';
+        supaTestFeedback.style.color = '#FCA5A5';
+        supaTestFeedback.textContent = 'Please enter both the Project URL and Anon Key.';
+      }
+      return;
+    }
+
+    if (supaTestFeedback) {
+      supaTestFeedback.style.display = 'block';
+      supaTestFeedback.style.color = 'var(--ash)';
+      supaTestFeedback.textContent = 'Testing connection to Supabase...';
+    }
+
+    try {
+      if (!window.supabase) {
+        throw new Error('Supabase client library not loaded. Check internet connection.');
+      }
+      const testClient = window.supabase.createClient(url, key);
+      const { data, error } = await testClient.from('teams').select('id').limit(1);
+
+      if (error) {
+        if (error.code === 'PGRST116' || error.message.includes('relation "public.teams" does not exist')) {
+          supaTestFeedback.style.color = '#FBBF24';
+          supaTestFeedback.innerHTML = 'Connected to Supabase! However, table <code>teams</code> is missing. Click <b>"Supabase SQL Setup"</b> and run the script in your Supabase SQL Editor.';
+        } else {
+          supaTestFeedback.style.color = '#FCA5A5';
+          supaTestFeedback.textContent = 'Connection test failed: ' + error.message;
+        }
+      } else {
+        supaTestFeedback.style.color = '#34D399';
+        supaTestFeedback.textContent = 'Connection successful! Successfully reached Supabase database.';
+      }
+    } catch (err) {
+      supaTestFeedback.style.color = '#FCA5A5';
+      supaTestFeedback.textContent = 'Connection error: ' + (err.message || err);
+    }
+  });
+
+  // Save Supabase Configuration
+  saveSupaConfigBtn?.addEventListener('click', function() {
+    const url = cfgSupaUrl?.value.trim() || '';
+    const key = cfgSupaKey?.value.trim() || '';
+
+    if (!url || !key) {
+      alert('Please provide both Project URL and Anon Key.');
+      return;
+    }
+
+    localStorage.setItem('hackrush_supabase_config', JSON.stringify({ url: url, anonKey: key }));
+    initSupabase();
+    loadRegistrations();
+    updateSupaBadge();
+
+    if (supaTestFeedback) {
+      supaTestFeedback.style.display = 'block';
+      supaTestFeedback.style.color = '#34D399';
+      supaTestFeedback.textContent = 'Configuration saved! Real-time Supabase sync is now active.';
+    }
+
+    setTimeout(function() {
+      supaConfigModal?.classList.remove('active');
+    }, 1200);
+  });
+
+  // Disconnect / Clear Configuration
+  clearSupaConfigBtn?.addEventListener('click', function() {
+    if (confirm('Disconnect Supabase and revert to browser LocalStorage?')) {
+      localStorage.removeItem('hackrush_supabase_config');
+      if (cfgSupaUrl) cfgSupaUrl.value = '';
+      if (cfgSupaKey) cfgSupaKey.value = '';
+      initSupabase();
+      loadRegistrations();
+      updateSupaBadge();
+      if (supaTestFeedback) {
+        supaTestFeedback.style.display = 'block';
+        supaTestFeedback.style.color = '#FBBF24';
+        supaTestFeedback.textContent = 'Disconnected. App will now use local storage fallback.';
+      }
+    }
+  });
+
   window.addEventListener('click', function(e) {
     if (e.target === detailModal) detailModal.classList.remove('active');
     if (e.target === sqlModal) sqlModal.classList.remove('active');
+    if (e.target === supaConfigModal) supaConfigModal.classList.remove('active');
   });
 
   window.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
       detailModal?.classList.remove('active');
       sqlModal?.classList.remove('active');
+      supaConfigModal?.classList.remove('active');
     }
   });
 
