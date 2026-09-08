@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=Azeret+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="/src/theme.css">
+<link rel="stylesheet" href="/theme.css">
 <style>
   .reg-hero {
     padding: 120px 0 40px;
@@ -299,12 +299,6 @@
         <small class="error-msg" id="err-teamName"></small>
       </div>
 
-      <div class="field" style="margin-top:16px;">
-        <label for="collegeName">College / University Name <span class="req">*</span></label>
-        <input type="text" id="collegeName" name="collegeName" placeholder="e.g. Jeppiaar Engineering College, Chennai" required autocomplete="off">
-        <small class="error-msg" id="err-collegeName"></small>
-      </div>
-
       <div class="field" style="margin-top:20px;">
         <label>Team Size <span class="req">*</span> (2 or 3 members)</label>
         <div class="size-picker">
@@ -354,6 +348,12 @@
           </div>
         </div>
 
+        <div class="field" style="margin-top:14px;">
+          <label for="m1_college">College / University Name <span class="req">*</span></label>
+          <input type="text" id="m1_college" name="m1_college" placeholder="College / University name" required>
+          <small class="error-msg" id="err-m1_college"></small>
+        </div>
+
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-top:14px;">
           <div class="field">
             <label for="m1_phone">Phone Number <span class="req">*</span></label>
@@ -376,6 +376,19 @@
             <label for="m1_dept">Department <span class="req">*</span></label>
             <input type="text" id="m1_dept" name="m1_dept" placeholder="e.g. AI & ML, CSE, ECE" required>
             <small class="error-msg" id="err-m1_dept"></small>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px;">
+          <div class="field">
+            <label for="m1_parent_phone">Parent / Guardian Contact No. <span class="req">*</span></label>
+            <input type="tel" id="m1_parent_phone" name="m1_parent_phone" placeholder="Parent / guardian mobile number" maxlength="10" required>
+            <small class="error-msg" id="err-m1_parent_phone"></small>
+          </div>
+          <div class="field">
+            <label for="m1_hod_phone">Dept. HOD / Class In-charge Contact No. <span class="req">*</span></label>
+            <input type="tel" id="m1_hod_phone" name="m1_hod_phone" placeholder="Official contact number" maxlength="10" required>
+            <small class="error-msg" id="err-m1_hod_phone"></small>
           </div>
         </div>
 
@@ -419,6 +432,12 @@
           </div>
         </div>
 
+        <div class="field" style="margin-top:14px;">
+          <label for="m2_college">College / University Name <span class="req">*</span></label>
+          <input type="text" id="m2_college" name="m2_college" placeholder="College / University name" required>
+          <small class="error-msg" id="err-m2_college"></small>
+        </div>
+
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-top:14px;">
           <div class="field">
             <label for="m2_phone">Phone Number <span class="req">*</span></label>
@@ -441,6 +460,19 @@
             <label for="m2_dept">Department <span class="req">*</span></label>
             <input type="text" id="m2_dept" name="m2_dept" placeholder="e.g. AI & ML, CSE, IT" required>
             <small class="error-msg" id="err-m2_dept"></small>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px;">
+          <div class="field">
+            <label for="m2_parent_phone">Parent / Guardian Contact No. <span class="req">*</span></label>
+            <input type="tel" id="m2_parent_phone" name="m2_parent_phone" placeholder="Parent / guardian mobile number" maxlength="10" required>
+            <small class="error-msg" id="err-m2_parent_phone"></small>
+          </div>
+          <div class="field">
+            <label for="m2_hod_phone">Dept. HOD / Class In-charge Contact No. <span class="req">*</span></label>
+            <input type="tel" id="m2_hod_phone" name="m2_hod_phone" placeholder="Official contact number" maxlength="10" required>
+            <small class="error-msg" id="err-m2_hod_phone"></small>
           </div>
         </div>
 
@@ -484,6 +516,12 @@
           </div>
         </div>
 
+        <div class="field" style="margin-top:14px;">
+          <label for="m3_college">College / University Name <span class="req">*</span></label>
+          <input type="text" id="m3_college" name="m3_college" placeholder="College / University name">
+          <small class="error-msg" id="err-m3_college"></small>
+        </div>
+
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-top:14px;">
           <div class="field">
             <label for="m3_phone">Phone Number <span class="req">*</span></label>
@@ -506,6 +544,19 @@
             <label for="m3_dept">Department <span class="req">*</span></label>
             <input type="text" id="m3_dept" name="m3_dept" placeholder="e.g. AI & ML, CSE, Mech">
             <small class="error-msg" id="err-m3_dept"></small>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px;">
+          <div class="field">
+            <label for="m3_parent_phone">Parent / Guardian Contact No.</label>
+            <input type="tel" id="m3_parent_phone" name="m3_parent_phone" placeholder="Parent / guardian mobile number" maxlength="10">
+            <small class="error-msg" id="err-m3_parent_phone"></small>
+          </div>
+          <div class="field">
+            <label for="m3_hod_phone">Dept. HOD / Class In-charge Contact No.</label>
+            <input type="tel" id="m3_hod_phone" name="m3_hod_phone" placeholder="Official contact number" maxlength="10">
+            <small class="error-msg" id="err-m3_hod_phone"></small>
           </div>
         </div>
 
@@ -683,6 +734,29 @@
   </div>
 </div>
 
-<script type="module" src="/src/register.ts"></script>
+<script>
+  (() => {
+    const size2Btn = document.getElementById('size2Btn');
+    const size3Btn = document.getElementById('size3Btn');
+    const teamSize = document.getElementById('teamSize');
+    const member3Container = document.getElementById('member3Container');
+
+    function selectTeamSize(size) {
+      const isThree = size === '3';
+      teamSize.value = size;
+      size2Btn.classList.toggle('active', !isThree);
+      size3Btn.classList.toggle('active', isThree);
+      member3Container.style.display = isThree ? 'block' : 'none';
+
+      member3Container.querySelectorAll('input, select').forEach((field) => {
+        field.required = isThree;
+      });
+    }
+
+    size2Btn.addEventListener('click', () => selectTeamSize('2'));
+    size3Btn.addEventListener('click', () => selectTeamSize('3'));
+    selectTeamSize(teamSize.value || '2');
+  })();
+</script>
 </body>
 </html>
