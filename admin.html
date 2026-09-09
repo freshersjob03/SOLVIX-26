@@ -807,13 +807,13 @@ body {
       <button id="closeSqlBtn" class="btn btn--ghost btn--sm">&times; Close</button>
     </div>
     <p style="color:var(--ash); font-size:13.5px; line-height:1.6; margin:0 0 14px;">
-      If the <code style="color:var(--violet);">teams</code> table already exists, run the t-shirt ALTER query first. For a new project, copy and run the full schema below.
+      If the <code style="color:var(--violet);">teams</code> table already exists, run the missing-columns ALTER first. For a new project, copy and run the full schema below. This covers t-shirt size, parent / HOD numbers, ID cards, payment proof, and WhatsApp status.
     </p>
 
-    <h4 style="font-family:var(--f-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--violet); margin:0 0 8px;">1. Add t-shirt columns (existing database)</h4>
+    <h4 style="font-family:var(--f-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--violet); margin:0 0 8px;">1. Add missing columns (existing database)</h4>
     <pre id="tshirtSqlCodeBlock" style="background:#0a0a0c; border:1px solid var(--border); border-radius:8px; padding:16px; font-family:var(--f-mono); font-size:12px; color:var(--bone); max-height:180px; overflow-y:auto; line-height:1.5; white-space:pre-wrap;"></pre>
     <div style="display:flex; justify-content:flex-end; margin:10px 0 20px; gap:10px;">
-      <button id="copyTshirtSqlBtn" class="btn btn--primary btn--sm">Copy T-Shirt SQL</button>
+      <button id="copyTshirtSqlBtn" class="btn btn--primary btn--sm">Copy Missing-Columns SQL</button>
     </div>
 
     <h4 style="font-family:var(--f-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ash); margin:0 0 8px;">2. Full schema (new database)</h4>
@@ -833,16 +833,49 @@ body {
   const LOCAL_STORAGE_KEY = 'hackrush_2k26_local_teams';
   const ADMIN_PASSCODES = ['solvix2026', 'admin@solvix', 'solvixadmin'];
 
-  const SUPABASE_TSHIRT_ALTER_SQL = `-- SOLVIX'26 — add t-shirt size columns to an existing database
--- Run this in Supabase SQL Editor if teams/team_members already exist.
+  const SUPABASE_TSHIRT_ALTER_SQL = `-- SOLVIX'26 — add every missing registration column to an existing database
+-- Run this in Supabase SQL Editor if teams / team_members already exist.
+-- Safe to re-run: ADD COLUMN IF NOT EXISTS will skip columns that are already there.
 
-ALTER TABLE public.teams
-  ADD COLUMN IF NOT EXISTS leader_tshirt_size TEXT DEFAULT '';
+-- Teams (leader + payment + WhatsApp)
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS college_name TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS team_size INTEGER;
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_name TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_email TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_phone TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_year TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_department TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_parent_mobile TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_incharge_mobile TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_tshirt_size TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_id_card_url TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS transaction_id TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS payment_proof_url TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS whatsapp_joined BOOLEAN DEFAULT false;
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'pending';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT now();
 
-ALTER TABLE public.team_members
-  ADD COLUMN IF NOT EXISTS tshirt_size TEXT DEFAULT '';`;
+-- Members (college, t-shirt, parent / HOD, ID card)
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS name TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS email TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS phone TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS year TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS college TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS department TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS tshirt_size TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS parent_mobile TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS incharge_mobile TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS id_card_url TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS is_leader BOOLEAN DEFAULT false;
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT now();`;
 
-  const SUPABASE_SCHEMA_SQL = `-- HACKRUSH 2K26 / SOLVIX'26 DATABASE SCHEMA
+  const SUPABASE_SCHEMA_SQL = `-- ============================================================================
+-- HACKRUSH 2K26 / SOLVIX'26 — COMPLETE DATABASE SCHEMA
+-- Paste this entire script into Supabase → SQL Editor → Run
+-- Covers every field collected on register.html
+-- ============================================================================
+
+-- 1) Teams
 CREATE TABLE IF NOT EXISTS public.teams (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     registration_id TEXT UNIQUE NOT NULL,
@@ -857,43 +890,75 @@ CREATE TABLE IF NOT EXISTS public.teams (
     leader_parent_mobile TEXT DEFAULT '',
     leader_incharge_mobile TEXT DEFAULT '',
     leader_tshirt_size TEXT DEFAULT '',
-    leader_id_card_url TEXT NOT NULL,
+    leader_id_card_url TEXT NOT NULL DEFAULT '',
     transaction_id TEXT DEFAULT '',
-    payment_proof_url TEXT NOT NULL,
+    payment_proof_url TEXT NOT NULL DEFAULT '',
     whatsapp_joined BOOLEAN NOT NULL DEFAULT false,
-    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'verified')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- 2) Members (one row per participant, including the leader)
 CREATE TABLE IF NOT EXISTS public.team_members (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     team_id UUID NOT NULL REFERENCES public.teams(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     email TEXT NOT NULL,
     phone TEXT NOT NULL,
-    year TEXT NOT NULL,
-    college TEXT NOT NULL,
-    department TEXT NOT NULL,
+    year TEXT NOT NULL DEFAULT '',
+    college TEXT NOT NULL DEFAULT '',
+    department TEXT NOT NULL DEFAULT '',
     tshirt_size TEXT DEFAULT '',
-    id_card_url TEXT NOT NULL,
+    parent_mobile TEXT DEFAULT '',
+    incharge_mobile TEXT DEFAULT '',
+    id_card_url TEXT NOT NULL DEFAULT '',
     is_leader BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Add t-shirt columns to tables that were created before this field existed.
-ALTER TABLE public.teams
-  ADD COLUMN IF NOT EXISTS leader_tshirt_size TEXT DEFAULT '';
+-- 3) Add any columns missing from an older table (safe to re-run)
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS college_name TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS team_size INTEGER;
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_name TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_email TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_phone TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_year TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_department TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_parent_mobile TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_incharge_mobile TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_tshirt_size TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS leader_id_card_url TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS transaction_id TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS payment_proof_url TEXT DEFAULT '';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS whatsapp_joined BOOLEAN DEFAULT false;
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'pending';
+ALTER TABLE public.teams ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT now();
 
-ALTER TABLE public.team_members
-  ADD COLUMN IF NOT EXISTS tshirt_size TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS name TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS email TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS phone TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS year TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS college TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS department TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS tshirt_size TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS parent_mobile TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS incharge_mobile TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS id_card_url TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS is_leader BOOLEAN DEFAULT false;
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT now();
 
--- Required public storage buckets for registration uploads.
+CREATE INDEX IF NOT EXISTS teams_status_idx ON public.teams (status);
+CREATE INDEX IF NOT EXISTS teams_created_at_idx ON public.teams (created_at DESC);
+CREATE INDEX IF NOT EXISTS team_members_team_id_idx ON public.team_members (team_id);
+
+-- 4) Public storage buckets for ID cards and payment screenshots
 INSERT INTO storage.buckets (id, name, public)
 VALUES
     ('id-cards', 'id-cards', true),
     ('payment-receipts', 'payment-receipts', true)
 ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public;
 
+-- 5) Row Level Security
 ALTER TABLE public.teams ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
 
@@ -902,17 +967,31 @@ DROP POLICY IF EXISTS "Allow public insert into team_members" ON public.team_mem
 DROP POLICY IF EXISTS "Allow public read teams" ON public.teams;
 DROP POLICY IF EXISTS "Allow public update teams" ON public.teams;
 DROP POLICY IF EXISTS "Allow public read team_members" ON public.team_members;
+DROP POLICY IF EXISTS "Allow authenticated full access to teams" ON public.teams;
+DROP POLICY IF EXISTS "Allow authenticated full access to team_members" ON public.team_members;
 DROP POLICY IF EXISTS "Allow public upload registration files" ON storage.objects;
+DROP POLICY IF EXISTS "Allow public read registration files" ON storage.objects;
 
-CREATE POLICY "Allow public insert into teams" ON public.teams FOR INSERT TO anon, authenticated WITH CHECK (true);
-CREATE POLICY "Allow public insert into team_members" ON public.team_members FOR INSERT TO anon, authenticated WITH CHECK (true);
-CREATE POLICY "Allow public read teams" ON public.teams FOR SELECT TO anon, authenticated USING (true);
-CREATE POLICY "Allow public update teams" ON public.teams FOR UPDATE TO anon, authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Allow public read team_members" ON public.team_members FOR SELECT TO anon, authenticated USING (true);
-CREATE POLICY "Allow public upload registration files" ON storage.objects FOR INSERT TO anon, authenticated WITH CHECK (bucket_id IN ('id-cards', 'payment-receipts'));
-
-CREATE POLICY "Allow authenticated full access to teams" ON public.teams FOR ALL TO authenticated USING (true);
-CREATE POLICY "Allow authenticated full access to team_members" ON public.team_members FOR ALL TO authenticated USING (true);`;
+CREATE POLICY "Allow public insert into teams"
+  ON public.teams FOR INSERT TO anon, authenticated WITH CHECK (true);
+CREATE POLICY "Allow public insert into team_members"
+  ON public.team_members FOR INSERT TO anon, authenticated WITH CHECK (true);
+CREATE POLICY "Allow public read teams"
+  ON public.teams FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "Allow public update teams"
+  ON public.teams FOR UPDATE TO anon, authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public read team_members"
+  ON public.team_members FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "Allow authenticated full access to teams"
+  ON public.teams FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow authenticated full access to team_members"
+  ON public.team_members FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public upload registration files"
+  ON storage.objects FOR INSERT TO anon, authenticated
+  WITH CHECK (bucket_id IN ('id-cards', 'payment-receipts'));
+CREATE POLICY "Allow public read registration files"
+  ON storage.objects FOR SELECT TO anon, authenticated
+  USING (bucket_id IN ('id-cards', 'payment-receipts'));`;
 
   // Default seed teams if local storage is clean
   const INITIAL_SEEDS = [
@@ -1421,12 +1500,14 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
       {
         name: leaderMember?.name || team.leader_name || '',
         email: leaderMember?.email || team.leader_email || '',
-        phone: leaderMember?.phone || team.leader_phone || '',
-        year: leaderMember?.year || team.leader_year || '',
-        college: leaderMember?.college || team.college_name || '',
+        phone: leaderMember?.phone || team.leader_phone || team.leader_mobile || '',
+        year: leaderMember?.year || team.leader_year || team.leader_study_year || '',
+        college: leaderMember?.college || team.college_name || team.leader_college || '',
         dept: leaderMember?.department || team.leader_department || '',
         tshirt: leaderMember?.tshirt_size || team.leader_tshirt_size || '',
-        id_url: leaderMember?.id_card_url || '',
+        parent: leaderMember?.parent_mobile || team.leader_parent_mobile || '',
+        hod: leaderMember?.incharge_mobile || team.leader_incharge_mobile || team.leader_hod_mobile || '',
+        id_url: leaderMember?.id_card_url || team.leader_id_card_url || '',
         is_leader: true,
       }
     ];
@@ -1443,6 +1524,8 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
             college: m.college || '',
             dept: m.department,
             tshirt: m.tshirt_size || m.tshirt || '',
+            parent: m.parent_mobile || m.parent_phone || '',
+            hod: m.incharge_mobile || m.hod_mobile || m.hod_phone || '',
             id_url: m.id_card_url,
             is_leader: false,
           });
@@ -1461,6 +1544,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
               </div>
               <div style="font-size:12px; color:var(--ash); margin-top:2px;">
                 ${escapeHtml(m.college || '')} • ${escapeHtml(m.dept || '')} • ${escapeHtml(m.year || '')} • T-Shirt: ${escapeHtml(m.tshirt || '-')} • <a href="tel:${m.phone}" style="color:var(--bone);">${escapeHtml(m.phone)}</a> • <a href="mailto:${m.email}" style="color:var(--violet);">${escapeHtml(m.email)}</a>
+                ${(m.parent || m.hod) ? '<br>Parent: ' + escapeHtml(m.parent || '-') + ' • HOD / In-charge: ' + escapeHtml(m.hod || '-') : ''}
               </div>
             </div>
             <div>
