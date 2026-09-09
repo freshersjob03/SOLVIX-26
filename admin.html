@@ -1641,9 +1641,9 @@ CREATE POLICY "Allow public read registration files"
       'Registration ID', 'Team Name', 'Team Size', 'Status', 'Created At',
       'Transaction ID', 'WhatsApp Joined',
       'Participant Number', 'Participant Role', 'Participant Name',
-      'Participant Email', 'Participant Phone', 'Year of Study',
-      'College / University', 'Department', 'T-Shirt Size (inches)',
-      'Parent / Guardian Phone', 'HOD / In-charge Phone'
+      'Participant Email', 'Participant Phone', 'Parent / Guardian Phone',
+      'College / University', 'Year of Study', 'Department',
+      'HOD / In-charge Phone', 'T-Shirt Size'
     ];
 
     function csvValue(value) {
@@ -1706,12 +1706,12 @@ CREATE POLICY "Allow public read registration files"
           p.name,
           p.email,
           p.phone,
-          p.year,
-          p.college,
-          p.department,
-          p.tshirt,
           p.parentPhone,
-          p.hodPhone
+          p.college,
+          p.year,
+          p.department,
+          p.hodPhone,
+          p.tshirt
         ].map(csvValue).join(','));
       });
     });
