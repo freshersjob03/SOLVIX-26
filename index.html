@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SOLVIX'26 — Hack for a Better City | HackRush 2K26</title>
-<meta name="description" content="SOLVIX'26 (HackRush) — a 24-hour hackathon by Dept. of AI & ML, Jeppiaar Engineering College with EmpowerED. 25-26 September 2026, Guindy, Chennai. Teams of 2-3, Rs.299 entry, 30 teams only.">
+<meta name="description" content="SOLVIX'26 (HackRush) — a 24-hour hackathon by Dept. of AI & ML, Jeppiaar Engineering College with EmpowerED. 25-26 September 2026, Guindy, Chennai. Teams of 2-3, Round 1 Rs.150 / Round 2 Rs.200, 30 teams only.">
 <meta property="og:title" content="SOLVIX'26 — Hack for a Better City | HackRush 2K26">
 <meta property="og:description" content="SOLVIX'26 — a 24-hour hackathon by Dept. of AI & ML, Jeppiaar Engineering College with EmpowerED. 25-26 September 2026, Guindy, Chennai.">
 <meta property="og:type" content="website">
@@ -346,7 +346,8 @@ h1, h2, h3, h4 {
   display: flex;
   align-items: center;
   gap: 22px;
-  padding-block: 12px;
+  padding-block: 8px;
+  overflow: visible;
 }
 
 .nav__logos {
@@ -357,9 +358,7 @@ h1, h2, h3, h4 {
 }
 
 .nav__logos img {
-  height: 40px;
   width: auto;
-  max-width: 180px;
   object-fit: contain;
   opacity: 0.95;
   transition: opacity 0.2s;
@@ -371,16 +370,23 @@ h1, h2, h3, h4 {
   object-fit: contain;
 }
 
+.nav__logos img.brand-logo--aiml,
 .brand-logo--aiml { height: 44px; max-width: 108px; }
+.nav__logos img.brand-logo--jeppiaar,
 .brand-logo--jeppiaar {
-  height: 76px;
-  max-width: 300px;
+  height: 118px;
+  max-height: none !important;
+  max-width: none !important;
+  width: auto !important;
+  flex-shrink: 0;
   transform: scale(1.22);
-  transform-origin: center;
+  transform-origin: center center;
+  margin-block: -28px;
   position: relative;
   z-index: 1;
 }
-.brand-logo--empowered { height: 40px; max-width: 155px; }
+.nav__logos img.brand-logo--empowered,
+.brand-logo--empowered { height: 44px; max-width: 160px; }
 .brand-divider {
   color: var(--hair);
   font-size: 20px;
@@ -1488,8 +1494,8 @@ details p {
 
 /* Keep the footer college logo compact without changing the header logo. */
 .foot__logos .brand-logo--jeppiaar {
-  height: 48px;
-  max-width: 190px;
+  height: 64px;
+  max-width: none;
   transform: none;
 }
 
@@ -1529,25 +1535,29 @@ details p {
 @media (max-width: 700px) {
   .nav__in { gap: 12px; }
   .nav__logos { gap: 8px; min-width: 0; }
-  .nav__logos .brand-logo--aiml { height: 34px; max-width: 78px; }
-  .nav__logos .brand-logo--jeppiaar {
-    height: 58px;
-    max-width: 210px;
-    transform: scale(1.16);
+  .nav__logos img.brand-logo--aiml { height: 34px; max-width: 78px; }
+  .nav__logos img.brand-logo--jeppiaar {
+    height: 86px;
+    max-height: none !important;
+    max-width: none !important;
+    transform: scale(1.18);
+    margin-block: -18px;
   }
-  .nav__logos .brand-logo--empowered { height: 30px; max-width: 105px; }
+  .nav__logos img.brand-logo--empowered { height: 34px; max-width: 120px; }
   .nav__logos .brand-divider { font-size: 16px; }
   .nav__right .chip { display: none; }
 }
 
 @media (max-width: 430px) {
-  .nav__logos .brand-logo--aiml { height: 30px; max-width: 68px; }
-  .nav__logos .brand-logo--jeppiaar {
-    height: 50px;
-    max-width: 180px;
-    transform: scale(1.12);
+  .nav__logos img.brand-logo--aiml { height: 30px; max-width: 68px; }
+  .nav__logos img.brand-logo--jeppiaar {
+    height: 72px;
+    max-height: none !important;
+    max-width: none !important;
+    transform: scale(1.16);
+    margin-block: -14px;
   }
-  .nav__logos .brand-logo--empowered { height: 27px; max-width: 92px; }
+  .nav__logos img.brand-logo--empowered { height: 30px; max-width: 110px; }
   .nav__logos .brand-divider { display: none; }
 }
 
@@ -1642,7 +1652,7 @@ try {
         <div class="fact f-tl" style="--d:.92s"><em>Presented by</em><i>Dept. of AI &amp; ML<br>Jeppiaar Engineering College</i></div>
         <div class="fact f-tr" style="--d:1.06s"><em>In collaboration with</em><i>EmpowerED Company</i></div>
         <div class="fact f-bl" style="--d:1.20s"><em>When</em><i>25 &ndash; 26 September 2026<br>10:00 AM &rarr; 10:00 AM</i></div>
-        <div class="fact f-br" style="--d:1.34s"><em>Entry</em><i>&#8377;299 per team &middot; teams of 2&ndash;3<br>Guindy, Chennai &middot; 30 teams only</i></div>
+        <div class="fact f-br" style="--d:1.34s"><em>Entry</em><i>&#8377;150 Round 1 &middot; &#8377;200 Round 2<br>Teams of 2&ndash;3 &middot; 30 teams only</i></div>
       </div>
     </div>
     <div class="stage__cue"><span>Scroll</span><i></i></div>
@@ -1675,7 +1685,7 @@ try {
       <div class="facts">
         <div class="facts__row"><p class="facts__k">Date</p><p class="facts__v">25 &ndash; 26 September 2026</p></div>
         <div class="facts__row"><p class="facts__k">Timing</p><p class="facts__v">10:00 AM &rarr; 10:00 AM <span>&nbsp;straight through</span></p></div>
-        <div class="facts__row"><p class="facts__k">Entry fee</p><p class="facts__v">&#8377;299 <span>&nbsp;per team</span></p></div>
+        <div class="facts__row"><p class="facts__k">Entry fee</p><p class="facts__v">&#8377;150 <span>&nbsp;Round 1</span> &nbsp;&middot;&nbsp; &#8377;200 <span>&nbsp;Round 2</span></p></div>
         <div class="facts__row"><p class="facts__k">Team size</p><p class="facts__v">2 &ndash; 3 members only</p></div>
         <div class="facts__row"><p class="facts__k">Venue</p><p class="facts__v">EmpowerED Company <span>&nbsp;Guindy, Chennai &middot; offline</span></p></div>
       </div>
@@ -1702,7 +1712,7 @@ try {
     <span class="ticker__i">30 teams only</span>
     <span class="ticker__i">15 reach the night round</span>
     <span class="ticker__i">Mentors on floor</span>
-    <span class="ticker__i">Food &amp; internet provided</span>
+    <span class="ticker__i">Refreshments only &middot; arrange meals yourself</span>
     <span class="ticker__i">Physical certificates</span>
   </div>
 </div>
@@ -1786,7 +1796,7 @@ try {
         <div class="row"><p class="row__t">10:00</p><p class="row__w">Opening ceremony<small>Round 1 problem statements revealed</small></p></div>
         <div class="row"><p class="row__t">10:30</p><p class="row__w">Team discussion and solution planning</p></div>
         <div class="row"><p class="row__t">11:00</p><p class="row__w">Round 1 development &mdash; first sprint</p></div>
-        <div class="row row--soft"><p class="row__t">13:00</p><p class="row__w">Lunch</p></div>
+        <div class="row row--soft"><p class="row__t">13:00</p><p class="row__w">Meal break<small>Arrange meals on your own. Only refreshments are provided.</small></p></div>
         <div class="row"><p class="row__t">14:00</p><p class="row__w">Round 1 development &mdash; second sprint</p></div>
         <div class="row"><p class="row__t">15:30</p><p class="row__w">Evaluation and selection</p></div>
         <div class="row row--soft"><p class="row__t">16:30</p><p class="row__w">Judging deliberation &middot; ice-breaker</p></div>
@@ -1800,7 +1810,7 @@ try {
         <div class="row row--phase"><p class="row__t">19:30</p><p class="row__w">Phase 3 &mdash; Problem validation sheet<small>Six questions. Prove the problem is real before you build.</small></p></div>
         <div class="row row--phase"><p class="row__t">20:00</p><p class="row__w">Phase 4 &mdash; Build sprint begins</p></div>
         <div class="row row--soft"><p class="row__t">20:45</p><p class="row__w">Mentor checkpoint 1 &mdash; what are you building?</p></div>
-        <div class="row row--soft"><p class="row__t">21:00</p><p class="row__w">Dinner</p></div>
+        <div class="row row--soft"><p class="row__t">21:00</p><p class="row__w">Meal break<small>Arrange meals on your own. Only refreshments are provided.</small></p></div>
         <div class="row row--soft"><p class="row__t">23:00</p><p class="row__w">Mentor checkpoint 2 &mdash; show it working</p></div>
       </div>
 
@@ -1814,7 +1824,7 @@ try {
         <div class="row row--soft"><p class="row__t">02:30</p><p class="row__w">Mentor checkpoint 3 &mdash; working demo</p></div>
         <div class="row row--soft"><p class="row__t">03:15</p><p class="row__w">Ice-breaker</p></div>
         <div class="row row--phase"><p class="row__t">05:00</p><p class="row__w">Phase 7 &mdash; Final sprint<small>Prototype, deck, demo, impact metrics, business case</small></p></div>
-        <div class="row row--soft"><p class="row__t">07:00</p><p class="row__w">Breakfast</p></div>
+        <div class="row row--soft"><p class="row__t">07:00</p><p class="row__w">Meal break<small>Arrange meals on your own. Only refreshments are provided.</small></p></div>
         <div class="row"><p class="row__t">08:00</p><p class="row__w">Submissions close &middot; final presentations begin</p></div>
         <div class="row"><p class="row__t">09:30</p><p class="row__w">Results and prize distribution</p></div>
       </div>
@@ -1844,7 +1854,7 @@ try {
       </div>
       <div class="glass perk">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9040ED" stroke-width="1.6"><path d="M4 4v16M4 12h9a3 3 0 0 0 0-6H4M14 12v8M18 12v8"/></svg>
-        <div><h4>Food and internet</h4><p>Canteen at the venue. Connectivity provided by EmpowerED.</p></div>
+        <div><h4>Refreshments and internet</h4><p>Only refreshments are provided. Please arrange meals on your own. Connectivity provided by EmpowerED.</p></div>
       </div>
       <div class="glass perk">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9040ED" stroke-width="1.6"><path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6M3 18h18M6 10V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3M3 18v2M21 18v2"/></svg>
@@ -1894,7 +1904,7 @@ try {
             </div>
             <div style="display:flex; align-items:center; gap:12px; font-family:var(--f-mono); font-size:13px; color:var(--bone);">
               <span style="display:grid; place-items:center; width:26px; height:26px; border-radius:50%; background:rgba(144,64,237,0.2); border:1px solid var(--violet); color:var(--violet);">3</span>
-              <span>Transfer &#8377;299 &amp; upload proof of transaction</span>
+              <span>Transfer &#8377;150 (Round 1) &amp; upload proof of transaction</span>
             </div>
             <div style="display:flex; align-items:center; gap:12px; font-family:var(--f-mono); font-size:13px; color:var(--bone);">
               <span style="display:grid; place-items:center; width:26px; height:26px; border-radius:50%; background:rgba(144,64,237,0.2); border:1px solid var(--violet); color:var(--violet);">4</span>
@@ -1917,8 +1927,9 @@ try {
       <aside style="display:grid; gap:18px">
         <div class="glass card">
           <p class="facts__k">Official Bank Account Details</p>
-          <p class="amount">&#8377;299</p>
-          <p style="margin:0; color:var(--ash); font-size:13.5px">per team, for all 24 hours</p>
+          <p class="amount">&#8377;150</p>
+          <p style="margin:0; color:var(--ash); font-size:13.5px">Round 1 entry, per team</p>
+          <p style="margin:10px 0 0; color:var(--bone); font-size:14.5px; line-height:1.45;">Round 2 (if shortlisted): <strong>&#8377;200</strong> per team, collected separately</p>
 
           <div style="margin-top:22px">
             <div class="bank__row"><div><p class="bank__k">Bank</p><p class="bank__v">Indian Bank</p></div><button class="copy" data-copy="Indian Bank">Copy</button></div>
@@ -1935,6 +1946,7 @@ try {
             <li>Laptop and extensions</li>
             <li>Chargers &amp; personal hotspot backup</li>
             <li>College ID card &mdash; checked at entry</li>
+            <li>Your own meals &mdash; only refreshments are provided</li>
           </ul>
         </div>
       </aside>
@@ -2004,11 +2016,12 @@ try {
 
     <details><summary>Can students from other colleges take part?</summary><p>Yes. Any college, any department, any year of study. You do not have to be from Jeppiaar.</p></details>
     <details><summary>Do I need a team before I register?</summary><p>Yes. You register as a team of 2 or 3, with every member&rsquo;s details entered at once. Teams cannot be changed after registration closes.</p></details>
-    <details><summary>What does the &#8377;299 cover?</summary><p>Entry for the whole team, not per person, for the full 24 hours.</p></details>
+    <details><summary>How much is the entry fee?</summary><p>Round 1 is &#8377;150 per team, paid at registration. If you are shortlisted for Round 2 (overnight), an additional &#8377;200 per team is collected. Fees are per team, not per person. Only refreshments are provided &mdash; please arrange meals on your own.</p></details>
+    <details><summary>Will meals be provided at the venue?</summary><p>No. Only refreshments are provided during the 24 hours. Please arrange meals on your own for lunch, dinner and breakfast breaks.</p></details>
     <details><summary>Do we get the problem statements in advance?</summary><p>No. The domains are public so you can prepare, but the actual problem statements are revealed at the opening ceremony on 25 September.</p></details>
     <details><summary>What happens if we are not shortlisted?</summary><p>Round 1 ends with evaluation at 4:30 PM and 15 teams are announced at 5:30 PM. Shortlisted teams continue into the overnight round.</p></details>
     <details><summary>Do we stay the night at the venue?</summary><p>Yes, selected teams stay overnight at the venue. Accommodation is arranged.</p></details>
-    <details><summary>How do we pay?</summary><p>Direct bank transfer to the official Indian Bank account shown above. Upload the transfer screenshot on the registration page and a coordinator verifies it.</p></details>
+    <details><summary>How do we pay?</summary><p>Direct bank transfer of &#8377;150 (Round 1) to the official Indian Bank account shown above. Upload the transfer screenshot on the registration page and a coordinator verifies it. Round 2 fee of &#8377;200 is collected only if your team is shortlisted.</p></details>
     <details><summary>What do we submit at the end?</summary><p>A working prototype plus a presentation, demonstrated live in front of the judging panel &mdash; along with impact metrics and a business case.</p></details>
   </div>
 </section>
@@ -2019,7 +2032,7 @@ try {
     <div class="foot__logos" aria-label="AI and ML, Jeppiaar Engineering College, in collaboration with EmpowerED">
       <img src="https://i.ibb.co/TMbVhPWr/dept-logo.png" alt="AI &amp; ML" class="brand-logo brand-logo--aiml">
       <span class="brand-divider" aria-hidden="true">|</span>
-      <img src="https://i.ibb.co/TxDQjWpD/clg-logo-autonomous.png" alt="Jeppiaar Engineering College" class="brand-logo brand-logo--jeppiaar">
+      <img src="https://i.ibb.co/nNGsHxj4/An-Autonomous-Institution-20260805-210441-0000.png" alt="Jeppiaar Engineering College" class="brand-logo brand-logo--jeppiaar">
       <span class="brand-divider" aria-hidden="true">&times;</span>
       <img src="https://i.ibb.co/Kvykptr/Chat-GPT-Image-Sep-8-2026-05-55-32-PM.png" alt="EmpowerED" class="brand-logo brand-logo--empowered">
     </div>
