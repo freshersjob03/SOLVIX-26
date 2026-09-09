@@ -1856,9 +1856,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // 1. Try Supabase Insert
         if (supabaseClient) {
           try {
-            const { data: insertedTeam, error: teamError } = await supabaseClient
-              .from('teams')
-          .insert([{
+            const teamInsertPayload = {
                 registration_id: generatedRegId,
                 team_name: teamName,
                 college_name: m1_college,
@@ -1866,18 +1864,67 @@ document.addEventListener('DOMContentLoaded', function() {
                 leader_name: m1_name,
                 leader_email: m1_email,
                 leader_phone: m1_phone,
+                leader_year: m1_year,
+                leader_department: m1_dept,
+                leader_parent_mobile: m1_parent_phone,
+                leader_incharge_mobile: m1_hod_phone,
                 leader_tshirt_size: m1_tshirt,
+                leader_id_card_url: m1_id_url,
                 transaction_id: txnId,
                 payment_proof_url: payment_url,
                 payment_screenshot_url: payment_url,
                 whatsapp_joined: teamData.whatsapp_joined,
+                whatsapp_confirmed: teamData.whatsapp_confirmed,
                 status: 'pending'
-              }])
-              .select()
-              .single();
+              };
+
+            let insertedTeam = null;
+            let teamError = null;
+            try {
+              const teamRes = await supabaseClient
+                .from('teams')
+                .insert([teamInsertPayload])
+                .select()
+                .single();
+              insertedTeam = teamRes.data;
+              teamError = teamRes.error;
+            } catch (insertErr) {
+              teamError = insertErr;
+            }
+
+            // Retry without optional columns if the live table is missing some of them
+            if (teamError) {
+              console.warn('Full teams insert failed, retrying core columns:', teamError);
+              const fallbackPayload = {
+                registration_id: generatedRegId,
+                team_name: teamName,
+                college_name: m1_college,
+                team_size: teamSize,
+                leader_name: m1_name,
+                leader_email: m1_email,
+                leader_phone: m1_phone,
+                leader_parent_mobile: m1_parent_phone,
+                leader_incharge_mobile: m1_hod_phone,
+                leader_tshirt_size: m1_tshirt,
+                transaction_id: txnId,
+                payment_proof_url: payment_url,
+                whatsapp_joined: teamData.whatsapp_joined,
+                status: 'pending'
+              };
+              const retryRes = await supabaseClient
+                .from('teams')
+                .insert([fallbackPayload])
+                .select()
+                .single();
+              insertedTeam = retryRes.data;
+              teamError = retryRes.error;
+            }
+
+            if (teamError) {
+              console.warn('Supabase teams insert error:', teamError);
+            }
 
             if (!teamError && insertedTeam) {
-              // Insert members into team_members table if present
               const membersToInsert = memberList.map(function(m) {
                 return {
                   team_id: insertedTeam.id,
@@ -1888,13 +1935,18 @@ document.addEventListener('DOMContentLoaded', function() {
                   college: m.college,
                   department: m.department,
                   tshirt_size: m.tshirt_size,
+                  parent_mobile: m.parent_mobile || '',
+                  incharge_mobile: m.incharge_mobile || '',
                   id_card_url: m.id_card_url,
                   is_leader: m.is_leader
                 };
               });
 
               try {
-                await supabaseClient.from('team_members').insert(membersToInsert);
+                const { error: memError } = await supabaseClient.from('team_members').insert(membersToInsert);
+                if (memError) {
+                  console.warn('team_members insert failed:', memError);
+                }
               } catch (memErr) {
                 console.warn('team_members insert fallback:', memErr);
               }
