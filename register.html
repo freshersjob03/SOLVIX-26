@@ -855,7 +855,7 @@ select option {
       <a href="index.html#timeline">24 Hours</a>
       <a href="index.html#rules">Rules</a>
       <a href="index.html#venue">Venue</a>
-     
+      <a href="admin.html" style="color:var(--ash-dim);">Admin Portal</a>
     </nav>
     <div class="nav__right">
       <a class="btn btn--ghost btn--sm" href="index.html">&larr; Back to Overview</a>
@@ -1268,7 +1268,7 @@ select option {
           <span style="font-family:var(--f-mono); font-size:13px; color:var(--bone); display:block;">SOLVIX'26 Official Participant Group</span>
           <span style="font-size:12px; color:var(--ash);">Managed by Dept. of AI &amp; ML Coordinators</span>
         </div>
-        <a href="https://chat.whatsapp.com/LqnBhtbsRdT3NFkUbX7q54" target="_blank" rel="noopener" class="whatsapp-btn">
+        <a href="https://chat.whatsapp.com/G5sJvO8V87v8Q1j81Q0xyz" target="_blank" rel="noopener" class="whatsapp-btn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 2.012.82 2.802.82 3.18 0 5.767-2.587 5.767-5.766.001-3.187-2.575-5.77-5.773-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.694.072-2.18-.553-1.897-.798-3.123-2.73-3.218-2.855-.095-.126-.774-1.029-.774-1.962 0-.933.489-1.393.663-1.583.174-.19.38-.238.507-.238.127 0 .254.001.365.006.118.005.277-.044.433.332.162.392.553 1.349.601 1.447.048.098.08.213.016.339-.064.126-.096.205-.19.316-.095.111-.2.247-.286.332-.095.095-.194.198-.083.388.111.19.493.814 1.059 1.318.729.649 1.343.85 1.533.945.19.095.301.079.412-.048.111-.127.475-.555.602-.745.127-.19.254-.158.428-.095.175.063 1.11.523 1.301.618.19.095.317.143.365.222.048.079.048.46-.096.865z"/></svg>
           Join WhatsApp Group
         </a>
@@ -1763,16 +1763,64 @@ document.addEventListener('DOMContentLoaded', function() {
       `;
 
       try {
-        // Upload ID files and payment screenshot
-        const [m1_id_url, m2_id_url, m3_id_url, payment_url] = await Promise.all([
-          uploadFileOrBase64(files.m1_id, 'id-cards'),
-          uploadFileOrBase64(files.m2_id, 'id-cards'),
-          teamSize === 3 && files.m3_id ? uploadFileOrBase64(files.m3_id, 'id-cards') : Promise.resolve(''),
-          uploadFileOrBase64(files.payment, 'payment-receipts')
-        ]);
+        // Start all uploads immediately — don't wait for one before starting
+        // the next. The team insert below only needs the leader's ID card
+        // and the payment proof, so member 2/3's uploads keep running in the
+        // background while that insert happens, instead of blocking on them.
+        const m1_id_promise = uploadFileOrBase64(files.m1_id, 'id-cards');
+        const m2_id_promise = uploadFileOrBase64(files.m2_id, 'id-cards');
+        const m3_id_promise = teamSize === 3 && files.m3_id ? uploadFileOrBase64(files.m3_id, 'id-cards') : Promise.resolve('');
+        const payment_promise = uploadFileOrBase64(files.payment, 'payment-receipts');
 
         const generatedRegId = 'SOLVIX-26-' + Math.floor(1000 + Math.random() * 9000);
         const registrationTimestamp = new Date().toISOString();
+
+        const [m1_id_url, payment_url] = await Promise.all([m1_id_promise, payment_promise]);
+
+        submitBtn.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite; vertical-align:middle; margin-right:8px;"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+          Saving Registration to Database...
+        `;
+
+        // 1. Insert the team row — this is the source of truth the admin
+        // dashboard reads from, so a failure here must NOT be silently
+        // swallowed. Any error is thrown and caught by the outer try/catch
+        // so the participant sees a real error instead of a false "success".
+        let insertedTeamId = null;
+        if (supabaseClient) {
+          const { data: insertedTeam, error: teamError } = await supabaseClient
+            .from('teams')
+            .insert([{
+              registration_id: generatedRegId,
+              team_name: teamName,
+              college_name: m1_college,
+              team_size: teamSize,
+              leader_name: m1_name,
+              leader_email: m1_email,
+              leader_phone: m1_phone,
+              leader_year: m1_year,
+              leader_department: m1_dept,
+              leader_parent_mobile: m1_parent_phone,
+              leader_incharge_mobile: m1_hod_phone,
+              leader_tshirt_size: m1_tshirt,
+              leader_id_card_url: m1_id_url,
+              transaction_id: txnId,
+              payment_proof_url: payment_url,
+              whatsapp_joined: document.getElementById('waConfirmed')?.checked || false,
+              status: 'pending'
+            }])
+            .select()
+            .single();
+
+          if (teamError || !insertedTeam) {
+            throw new Error('Could not save your registration to the database: ' + (teamError?.message || 'unknown error') + '. Please try again or contact a coordinator.');
+          }
+          insertedTeamId = insertedTeam.id;
+        }
+
+        // Member 2/3 uploads were running in the background during the team
+        // insert above, so this usually resolves immediately.
+        const [m2_id_url, m3_id_url] = await Promise.all([m2_id_promise, m3_id_promise]);
 
         const memberList = [
           {
@@ -1853,43 +1901,11 @@ document.addEventListener('DOMContentLoaded', function() {
           members: memberList
         };
 
-        // 1. Insert into Supabase — this is the source of truth the admin
-        // dashboard reads from, so a failure here must NOT be silently
-        // swallowed. Any error is thrown and caught by the outer try/catch
-        // so the participant sees a real error instead of a false "success".
-        if (supabaseClient) {
-          const { data: insertedTeam, error: teamError } = await supabaseClient
-            .from('teams')
-            .insert([{
-              registration_id: generatedRegId,
-              team_name: teamName,
-              college_name: m1_college,
-              team_size: teamSize,
-              leader_name: m1_name,
-              leader_email: m1_email,
-              leader_phone: m1_phone,
-              leader_year: m1_year,
-              leader_department: m1_dept,
-              leader_parent_mobile: m1_parent_phone,
-              leader_incharge_mobile: m1_hod_phone,
-              leader_tshirt_size: m1_tshirt,
-              leader_id_card_url: m1_id_url,
-              transaction_id: txnId,
-              payment_proof_url: payment_url,
-              whatsapp_joined: teamData.whatsapp_joined,
-              status: 'pending'
-            }])
-            .select()
-            .single();
-
-          if (teamError || !insertedTeam) {
-            throw new Error('Could not save your registration to the database: ' + (teamError?.message || 'unknown error') + '. Please try again or contact a coordinator.');
-          }
-
-          // Insert members into team_members table (includes the leader as member 1)
+        // 2. Insert members into team_members table (includes the leader as member 1)
+        if (supabaseClient && insertedTeamId) {
           const membersToInsert = memberList.map(function(m) {
             return {
-              team_id: insertedTeam.id,
+              team_id: insertedTeamId,
               name: m.name,
               email: m.email,
               phone: m.phone,
