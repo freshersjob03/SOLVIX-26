@@ -1858,7 +1858,7 @@ document.addEventListener('DOMContentLoaded', function() {
           try {
             const { data: insertedTeam, error: teamError } = await supabaseClient
               .from('teams')
-              .insert([{
+          .insert([{
                 registration_id: generatedRegId,
                 team_name: teamName,
                 college_name: m1_college,
