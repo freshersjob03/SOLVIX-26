@@ -161,7 +161,8 @@ h1, h2, h3, h4 {
   display: flex;
   align-items: center;
   gap: 22px;
-  padding-block: 12px;
+  padding-block: 8px;
+  overflow: visible;
 }
 
 .nav__logos {
@@ -170,6 +171,46 @@ h1, h2, h3, h4 {
   gap: 14px;
   flex-shrink: 0;
   text-decoration: none;
+}
+
+.nav__logos img {
+  width: auto;
+  object-fit: contain;
+  opacity: 0.95;
+  transition: opacity 0.2s;
+}
+
+.brand-logo {
+  display: block;
+  width: auto;
+  object-fit: contain;
+}
+
+.nav__logos img.brand-logo--aiml,
+.brand-logo--aiml { height: 44px; max-width: 108px; }
+.nav__logos img.brand-logo--jeppiaar,
+.brand-logo--jeppiaar {
+  height: 118px;
+  max-height: none !important;
+  max-width: none !important;
+  width: auto !important;
+  flex-shrink: 0;
+  transform: scale(1.22);
+  transform-origin: center center;
+  margin-block: -28px;
+  position: relative;
+  z-index: 1;
+}
+.nav__logos img.brand-logo--empowered,
+.brand-logo--empowered { height: 44px; max-width: 160px; }
+.brand-divider {
+  color: var(--hair);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.nav__logos:hover img {
+  opacity: 1;
 }
 
 .nav__links {
@@ -205,6 +246,34 @@ h1, h2, h3, h4 {
 
 @media (min-width: 860px) {
   .nav__links { display: flex; }
+}
+
+@media (max-width: 700px) {
+  .nav__in { gap: 12px; }
+  .nav__logos { gap: 8px; min-width: 0; }
+  .nav__logos img.brand-logo--aiml { height: 34px; max-width: 78px; }
+  .nav__logos img.brand-logo--jeppiaar {
+    height: 86px;
+    max-height: none !important;
+    max-width: none !important;
+    transform: scale(1.18);
+    margin-block: -18px;
+  }
+  .nav__logos img.brand-logo--empowered { height: 34px; max-width: 120px; }
+  .nav__logos .brand-divider { font-size: 16px; }
+}
+
+@media (max-width: 430px) {
+  .nav__logos img.brand-logo--aiml { height: 30px; max-width: 68px; }
+  .nav__logos img.brand-logo--jeppiaar {
+    height: 72px;
+    max-height: none !important;
+    max-width: none !important;
+    transform: scale(1.16);
+    margin-block: -14px;
+  }
+  .nav__logos img.brand-logo--empowered { height: 30px; max-width: 110px; }
+  .nav__logos .brand-divider { display: none; }
 }
 
 /* Glass & Cards */
@@ -532,6 +601,7 @@ label {
 input[type="text"],
 input[type="tel"],
 input[type="email"],
+input[type="number"],
 input[type="password"],
 select,
 textarea {
@@ -773,12 +843,12 @@ select option {
 <!-- ================= NAV ================= -->
 <header class="nav stuck" id="nav">
   <div class="container nav__in">
-    <a href="index.html" class="nav__logos">
-      <span style="font-family:var(--f-display); font-size:22px; color:var(--violet);">AI&amp;ML</span>
-      <span style="color:var(--hair); font-size:20px;">|</span>
-      <span style="font-family:var(--f-mono); font-size:11px; letter-spacing:0.1em; color:var(--bone);">JEPPIAAR</span>
-      <span style="color:var(--hair); font-size:20px;">&times;</span>
-      <span style="font-family:var(--f-body); font-weight:700; font-size:12px; letter-spacing:0.15em; color:#A45CF2;">EmpowerED</span>
+    <a href="index.html" class="nav__logos" aria-label="AI and ML, Jeppiaar Engineering College, in collaboration with EmpowerED">
+      <img src="https://i.ibb.co/TMbVhPWr/dept-logo.png" alt="AI &amp; ML" class="brand-logo brand-logo--aiml">
+      <span class="brand-divider" aria-hidden="true">|</span>
+      <img src="https://i.ibb.co/nNGsHxj4/An-Autonomous-Institution-20260805-210441-0000.png" alt="Jeppiaar Engineering College" class="brand-logo brand-logo--jeppiaar">
+      <span class="brand-divider" aria-hidden="true">&times;</span>
+      <img src="https://i.ibb.co/Kvykptr/Chat-GPT-Image-Sep-8-2026-05-55-32-PM.png" alt="EmpowerED" class="brand-logo brand-logo--empowered">
     </a>
     <nav class="nav__links">
       <a href="index.html#rounds">Rounds</a>
@@ -801,7 +871,7 @@ select option {
       Register for <span style="color:var(--violet);">SOLVIX'26</span>
     </h1>
     <p style="color:var(--ash); font-size:16px; max-width:640px; line-height:1.6; margin:0 0 24px;">
-      Empower your ideas. Complete team credentials, member details, transfer payment of &#8377;299, and join the official community. Strict limit: 30 teams only.
+      Empower your ideas. Complete team credentials, member details, transfer the Round 1 fee of &#8377;150, and join the official community. Strict limit: 30 teams only.
     </p>
 
     <!-- Alert / Status Notice -->
@@ -858,7 +928,7 @@ select option {
         <span>Team Members</span>
       </div>
       <p style="color:var(--ash); font-size:14px; margin-top:-10px; margin-bottom:20px;">
-        Every participant must present a valid college ID at entry. Leader serves as the primary contact.
+        Every participant must present a valid college ID at entry. Leader serves as the primary contact. T-shirt size (chest in inches, e.g. 38) is required for every member.
       </p>
 
       <!-- Member 1: Leader -->
@@ -911,6 +981,12 @@ select option {
             <label for="m1_dept">Department <span class="req">*</span></label>
             <input type="text" id="m1_dept" name="m1_dept" placeholder="e.g. AI & ML, CSE, ECE" required>
             <small class="error-msg" id="err-m1_dept"></small>
+          </div>
+          <div class="field">
+            <label for="m1_tshirt">T-Shirt Size <span class="req">*</span></label>
+            <input type="number" id="m1_tshirt" name="m1_tshirt" placeholder="e.g. 38" min="28" max="52" step="1" inputmode="numeric" required>
+            <small style="color:var(--ash); font-size:11px;">Chest size in inches (28&ndash;52)</small>
+            <small class="error-msg" id="err-m1_tshirt"></small>
           </div>
         </div>
 
@@ -995,6 +1071,12 @@ select option {
             <input type="text" id="m2_dept" name="m2_dept" placeholder="e.g. AI & ML, CSE, IT" required>
             <small class="error-msg" id="err-m2_dept"></small>
           </div>
+          <div class="field">
+            <label for="m2_tshirt">T-Shirt Size <span class="req">*</span></label>
+            <input type="number" id="m2_tshirt" name="m2_tshirt" placeholder="e.g. 38" min="28" max="52" step="1" inputmode="numeric" required>
+            <small style="color:var(--ash); font-size:11px;">Chest size in inches (28&ndash;52)</small>
+            <small class="error-msg" id="err-m2_tshirt"></small>
+          </div>
         </div>
 
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-top:14px;">
@@ -1078,6 +1160,12 @@ select option {
             <input type="text" id="m3_dept" name="m3_dept" placeholder="e.g. AI & ML, CSE, Mech">
             <small class="error-msg" id="err-m3_dept"></small>
           </div>
+          <div class="field">
+            <label for="m3_tshirt">T-Shirt Size <span class="req">*</span></label>
+            <input type="number" id="m3_tshirt" name="m3_tshirt" placeholder="e.g. 38" min="28" max="52" step="1" inputmode="numeric">
+            <small style="color:var(--ash); font-size:11px;">Chest size in inches (28&ndash;52)</small>
+            <small class="error-msg" id="err-m3_tshirt"></small>
+          </div>
         </div>
 
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-top:14px;">
@@ -1120,14 +1208,14 @@ select option {
       </div>
 
       <p style="color:var(--ash); font-size:14px; margin-top:-10px; margin-bottom:18px;">
-        Transfer the registration fee of <strong style="color:var(--bone);">&#8377;299</strong> to the official bank account below. Enter the generated UTR / Transaction ID and attach the payment screenshot.
+        Transfer the Round 1 registration fee of <strong style="color:var(--bone);">&#8377;150</strong> to the official bank account below. Round 2 is an additional <strong style="color:var(--bone);">&#8377;200</strong> per team, collected only if you are shortlisted. Enter the UTR / Transaction ID and attach the payment screenshot.
       </p>
 
       <!-- Bank Details Box -->
       <div class="glass card" style="background:rgba(18,18,22,0.8); margin-bottom:20px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <span style="font-family:var(--f-mono); font-size:12px; letter-spacing:0.1em; color:var(--violet); text-transform:uppercase;">Official Bank Account</span>
-          <span class="chip" style="background:rgba(144,64,237,0.15); color:var(--bone);">&#8377;299 per team</span>
+          <span class="chip" style="background:rgba(144,64,237,0.15); color:var(--bone);">&#8377;150 Round 1</span>
         </div>
 
         <div style="display:grid; gap:8px;">
@@ -1154,7 +1242,7 @@ select option {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
             Click or drag payment screenshot here
           </p>
-          <span style="font-size:11px; color:var(--ash); display:block; margin-top:4px;">Must clearly show Transaction ID and amount (&#8377;299)</span>
+          <span style="font-size:11px; color:var(--ash); display:block; margin-top:4px;">Must clearly show Transaction ID and amount (&#8377;150)</span>
         </div>
         <div class="file-preview" id="payment_preview" style="display:none;">
           <span class="file-name" id="payment_name"></span>
@@ -1247,6 +1335,7 @@ select option {
       <div class="summary-row"><span class="label">Leader Phone</span><span class="val" id="resLeaderPhone">-</span></div>
       <div class="summary-row"><span class="label">Leader Email</span><span class="val" id="resLeaderEmail">-</span></div>
       <div class="summary-row"><span class="label">Transaction / UTR ID</span><span class="val" id="resTxnId">-</span></div>
+      <div class="summary-row"><span class="label">Round 1 Fee</span><span class="val">&#8377;150</span></div>
       <div class="summary-row"><span class="label">Status</span><span class="val" style="color:#F59E0B;">Submitted / Pending Verification</span></div>
     </div>
 
@@ -1374,7 +1463,7 @@ document.addEventListener('DOMContentLoaded', function() {
       size2Btn && size2Btn.classList.add('active');
       size3Btn && size3Btn.classList.remove('active');
       if (member3Container) member3Container.style.display = 'none';
-      clearErrors(['m3_name', 'm3_email', 'm3_college', 'm3_phone', 'm3_year', 'm3_dept', 'm3_id']);
+      clearErrors(['m3_name', 'm3_email', 'm3_college', 'm3_phone', 'm3_year', 'm3_dept', 'm3_tshirt', 'm3_id']);
     } else {
       size3Btn && size3Btn.classList.add('active');
       size2Btn && size2Btn.classList.remove('active');
@@ -1509,6 +1598,11 @@ document.addEventListener('DOMContentLoaded', function() {
     return /^[6-9]\d{9}$/.test(phone);
   }
 
+  function isValidTshirt(size) {
+    const n = parseInt(String(size).trim(), 10);
+    return /^\d{2}$/.test(String(size).trim()) && n >= 28 && n <= 52;
+  }
+
   // Convert File to Base64 data URL
   function fileToBase64(file) {
     return new Promise(function(resolve, reject) {
@@ -1565,6 +1659,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const m1_phone = document.getElementById('m1_phone')?.value.trim() || '';
       const m1_year = document.getElementById('m1_year')?.value || '';
       const m1_dept = document.getElementById('m1_dept')?.value.trim() || '';
+      const m1_tshirt = document.getElementById('m1_tshirt')?.value || '';
       const m1_parent_phone = document.getElementById('m1_parent_phone')?.value.trim() || '';
       const m1_hod_phone = document.getElementById('m1_hod_phone')?.value.trim() || '';
 
@@ -1575,6 +1670,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const m2_phone = document.getElementById('m2_phone')?.value.trim() || '';
       const m2_year = document.getElementById('m2_year')?.value || '';
       const m2_dept = document.getElementById('m2_dept')?.value.trim() || '';
+      const m2_tshirt = document.getElementById('m2_tshirt')?.value || '';
       const m2_parent_phone = document.getElementById('m2_parent_phone')?.value.trim() || '';
       const m2_hod_phone = document.getElementById('m2_hod_phone')?.value.trim() || '';
 
@@ -1585,6 +1681,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const m3_phone = document.getElementById('m3_phone')?.value.trim() || '';
       const m3_year = document.getElementById('m3_year')?.value || '';
       const m3_dept = document.getElementById('m3_dept')?.value.trim() || '';
+      const m3_tshirt = document.getElementById('m3_tshirt')?.value || '';
       const m3_parent_phone = document.getElementById('m3_parent_phone')?.value.trim() || '';
       const m3_hod_phone = document.getElementById('m3_hod_phone')?.value.trim() || '';
 
@@ -1592,9 +1689,9 @@ document.addEventListener('DOMContentLoaded', function() {
       let hasError = false;
       const allFields = [
         'teamName', 'txnId', 'terms', 'payment',
-        'm1_name', 'm1_email', 'm1_college', 'm1_phone', 'm1_year', 'm1_dept', 'm1_id',
-        'm2_name', 'm2_email', 'm2_college', 'm2_phone', 'm2_year', 'm2_dept', 'm2_id',
-        'm3_name', 'm3_email', 'm3_college', 'm3_phone', 'm3_year', 'm3_dept', 'm3_id'
+        'm1_name', 'm1_email', 'm1_college', 'm1_phone', 'm1_year', 'm1_dept', 'm1_tshirt', 'm1_id',
+        'm2_name', 'm2_email', 'm2_college', 'm2_phone', 'm2_year', 'm2_dept', 'm2_tshirt', 'm2_id',
+        'm3_name', 'm3_email', 'm3_college', 'm3_phone', 'm3_year', 'm3_dept', 'm3_tshirt', 'm3_id'
       ];
       clearErrors(allFields);
 
@@ -1609,6 +1706,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!m1_phone || !isValidPhone(m1_phone)) { setError('m1_phone', 'Enter a valid 10-digit Indian mobile number.'); hasError = true; }
       if (!m1_year) { setError('m1_year', 'Select year of study.'); hasError = true; }
       if (!m1_dept) { setError('m1_dept', 'Department is required.'); hasError = true; }
+      if (!isValidTshirt(m1_tshirt)) { setError('m1_tshirt', 'Enter a valid t-shirt size in inches (e.g. 38).'); hasError = true; }
       if (!files.m1_id) { setError('m1_id', 'Leader college ID card file is required.'); hasError = true; }
 
       // Member 2 validation
@@ -1618,6 +1716,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!m2_phone || !isValidPhone(m2_phone)) { setError('m2_phone', 'Enter a valid 10-digit mobile number.'); hasError = true; }
       if (!m2_year) { setError('m2_year', 'Select year of study.'); hasError = true; }
       if (!m2_dept) { setError('m2_dept', 'Department is required.'); hasError = true; }
+      if (!isValidTshirt(m2_tshirt)) { setError('m2_tshirt', 'Enter a valid t-shirt size in inches (e.g. 38).'); hasError = true; }
       if (!files.m2_id) { setError('m2_id', 'Member 2 college ID card file is required.'); hasError = true; }
 
       // Member 3 validation
@@ -1628,6 +1727,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!m3_phone || !isValidPhone(m3_phone)) { setError('m3_phone', 'Enter a valid 10-digit mobile number.'); hasError = true; }
         if (!m3_year) { setError('m3_year', 'Select year of study.'); hasError = true; }
         if (!m3_dept) { setError('m3_dept', 'Department is required.'); hasError = true; }
+        if (!isValidTshirt(m3_tshirt)) { setError('m3_tshirt', 'Enter a valid t-shirt size in inches (e.g. 38).'); hasError = true; }
         if (!files.m3_id) { setError('m3_id', 'Member 3 college ID card file is required.'); hasError = true; }
       }
 
@@ -1637,7 +1737,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hasError = true;
       }
       if (!files.payment) {
-        setError('payment', 'Payment screenshot is required to verify the ₹299 entry fee.');
+        setError('payment', 'Payment screenshot is required to verify the Round 1 fee of Rs 150.');
         hasError = true;
       }
 
@@ -1684,6 +1784,7 @@ document.addEventListener('DOMContentLoaded', function() {
             year: m1_year,
             department: m1_dept,
             college: m1_college,
+            tshirt_size: m1_tshirt,
             parent_mobile: m1_parent_phone,
             incharge_mobile: m1_hod_phone,
             id_card_url: m1_id_url,
@@ -1698,6 +1799,7 @@ document.addEventListener('DOMContentLoaded', function() {
             year: m2_year,
             department: m2_dept,
             college: m2_college,
+            tshirt_size: m2_tshirt,
             parent_mobile: m2_parent_phone,
             incharge_mobile: m2_hod_phone,
             id_card_url: m2_id_url,
@@ -1715,6 +1817,7 @@ document.addEventListener('DOMContentLoaded', function() {
             year: m3_year,
             department: m3_dept,
             college: m3_college,
+            tshirt_size: m3_tshirt,
             parent_mobile: m3_parent_phone,
             incharge_mobile: m3_hod_phone,
             id_card_url: m3_id_url,
@@ -1736,6 +1839,7 @@ document.addEventListener('DOMContentLoaded', function() {
           leader_mobile: m1_phone,
           leader_year: m1_year,
           leader_department: m1_dept,
+          leader_tshirt_size: m1_tshirt,
           leader_parent_mobile: m1_parent_phone,
           leader_incharge_mobile: m1_hod_phone,
           leader_id_card_url: m1_id_url,
@@ -1762,6 +1866,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 leader_name: m1_name,
                 leader_email: m1_email,
                 leader_phone: m1_phone,
+                leader_tshirt_size: m1_tshirt,
                 transaction_id: txnId,
                 payment_proof_url: payment_url,
                 payment_screenshot_url: payment_url,
@@ -1782,6 +1887,7 @@ document.addEventListener('DOMContentLoaded', function() {
                   year: m.year,
                   college: m.college,
                   department: m.department,
+                  tshirt_size: m.tshirt_size,
                   id_card_url: m.id_card_url,
                   is_leader: m.is_leader
                 };
