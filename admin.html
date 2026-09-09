@@ -643,7 +643,7 @@ body {
       <div class="stat-card">
         <p class="stat-k">Verified &amp; Paid</p>
         <p class="stat-v" id="statVerified" style="color:var(--emerald);">0</p>
-        <p class="stat-sub">&#8377;299 received &amp; confirmed</p>
+        <p class="stat-sub">&#8377;150 Round 1 received &amp; confirmed</p>
       </div>
       <div class="stat-card">
         <p class="stat-k">Pending Review</p>
@@ -682,6 +682,7 @@ body {
             <th>Reg ID</th>
             <th>Team Name &amp; College</th>
             <th>Size</th>
+            <th>T-Shirt</th>
             <th>Leader &amp; Contact</th>
             <th>Transaction ID</th>
             <th>Status</th>
@@ -691,7 +692,7 @@ body {
         </thead>
         <tbody id="regTableBody">
           <tr>
-            <td colspan="8" style="text-align:center; padding:40px; color:var(--ash);">
+            <td colspan="9" style="text-align:center; padding:40px; color:var(--ash);">
               Loading registrations from database...
             </td>
           </tr>
@@ -806,11 +807,19 @@ body {
       <button id="closeSqlBtn" class="btn btn--ghost btn--sm">&times; Close</button>
     </div>
     <p style="color:var(--ash); font-size:13.5px; line-height:1.6; margin:0 0 14px;">
-      To use a live Supabase project, copy and run this SQL query in your Supabase SQL Editor. It creates the <code style="color:var(--violet);">teams</code> table and sets up Row Level Security (RLS) policies.
+      If the <code style="color:var(--violet);">teams</code> table already exists, run the t-shirt ALTER query first. For a new project, copy and run the full schema below.
     </p>
-    <pre id="sqlCodeBlock" style="background:#0a0a0c; border:1px solid var(--border); border-radius:8px; padding:16px; font-family:var(--f-mono); font-size:12px; color:var(--bone); max-height:260px; overflow-y:auto; line-height:1.5; white-space:pre-wrap;"></pre>
+
+    <h4 style="font-family:var(--f-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--violet); margin:0 0 8px;">1. Add t-shirt columns (existing database)</h4>
+    <pre id="tshirtSqlCodeBlock" style="background:#0a0a0c; border:1px solid var(--border); border-radius:8px; padding:16px; font-family:var(--f-mono); font-size:12px; color:var(--bone); max-height:180px; overflow-y:auto; line-height:1.5; white-space:pre-wrap;"></pre>
+    <div style="display:flex; justify-content:flex-end; margin:10px 0 20px; gap:10px;">
+      <button id="copyTshirtSqlBtn" class="btn btn--primary btn--sm">Copy T-Shirt SQL</button>
+    </div>
+
+    <h4 style="font-family:var(--f-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ash); margin:0 0 8px;">2. Full schema (new database)</h4>
+    <pre id="sqlCodeBlock" style="background:#0a0a0c; border:1px solid var(--border); border-radius:8px; padding:16px; font-family:var(--f-mono); font-size:12px; color:var(--bone); max-height:220px; overflow-y:auto; line-height:1.5; white-space:pre-wrap;"></pre>
     <div style="display:flex; justify-content:flex-end; margin-top:16px; gap:10px;">
-      <button id="copySqlBtn" class="btn btn--primary btn--sm">Copy SQL</button>
+      <button id="copySqlBtn" class="btn btn--ghost btn--sm">Copy Full Schema</button>
     </div>
   </div>
 </div>
@@ -823,6 +832,15 @@ body {
 (function() {
   const LOCAL_STORAGE_KEY = 'hackrush_2k26_local_teams';
   const ADMIN_PASSCODES = ['solvix2026', 'admin@solvix', 'solvixadmin'];
+
+  const SUPABASE_TSHIRT_ALTER_SQL = `-- SOLVIX'26 — add t-shirt size columns to an existing database
+-- Run this in Supabase SQL Editor if teams/team_members already exist.
+
+ALTER TABLE public.teams
+  ADD COLUMN IF NOT EXISTS leader_tshirt_size TEXT DEFAULT '';
+
+ALTER TABLE public.team_members
+  ADD COLUMN IF NOT EXISTS tshirt_size TEXT DEFAULT '';`;
 
   const SUPABASE_SCHEMA_SQL = `-- HACKRUSH 2K26 / SOLVIX'26 DATABASE SCHEMA
 CREATE TABLE IF NOT EXISTS public.teams (
@@ -838,6 +856,7 @@ CREATE TABLE IF NOT EXISTS public.teams (
     leader_department TEXT NOT NULL,
     leader_parent_mobile TEXT DEFAULT '',
     leader_incharge_mobile TEXT DEFAULT '',
+    leader_tshirt_size TEXT DEFAULT '',
     leader_id_card_url TEXT NOT NULL,
     transaction_id TEXT DEFAULT '',
     payment_proof_url TEXT NOT NULL,
@@ -855,10 +874,18 @@ CREATE TABLE IF NOT EXISTS public.team_members (
     year TEXT NOT NULL,
     college TEXT NOT NULL,
     department TEXT NOT NULL,
+    tshirt_size TEXT DEFAULT '',
     id_card_url TEXT NOT NULL,
     is_leader BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Add t-shirt columns to tables that were created before this field existed.
+ALTER TABLE public.teams
+  ADD COLUMN IF NOT EXISTS leader_tshirt_size TEXT DEFAULT '';
+
+ALTER TABLE public.team_members
+  ADD COLUMN IF NOT EXISTS tshirt_size TEXT DEFAULT '';
 
 -- Required public storage buckets for registration uploads.
 INSERT INTO storage.buckets (id, name, public)
@@ -902,6 +929,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
       leader_email: 'aravind.aiml@jeppiaar.ac.in',
       leader_parent_mobile: '9840987654',
       leader_hod_mobile: '9444112233',
+      leader_tshirt_size: '40',
       leader_id_card_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=60',
       payment_screenshot_url: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=60',
       transaction_id: 'UTR4928109384',
@@ -917,6 +945,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
           department: 'Computer Science and Engineering',
           mobile: '9790123456',
           email: 'sneha.v@jeppiaar.ac.in',
+          tshirt_size: '36',
           id_card_url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&auto=format&fit=crop&q=60',
         },
         {
@@ -927,6 +956,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
           department: 'Information Technology',
           mobile: '9884123456',
           email: 'rohit.k@jeppiaar.ac.in',
+          tshirt_size: '42',
           id_card_url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=500&auto=format&fit=crop&q=60',
         }
       ]
@@ -944,6 +974,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
       leader_email: 'pooja.ram@ceg.edu',
       leader_parent_mobile: '9445987654',
       leader_hod_mobile: '9841002244',
+      leader_tshirt_size: '38',
       leader_id_card_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&auto=format&fit=crop&q=60',
       payment_screenshot_url: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=60',
       transaction_id: 'UTR8839201948',
@@ -959,6 +990,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
           department: 'ECE',
           mobile: '9445889900',
           email: 'karthik.r@ceg.edu',
+          tshirt_size: '40',
           id_card_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=60',
         }
       ]
@@ -991,7 +1023,9 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
   const showSqlBtn = document.getElementById('showSqlBtn');
   const closeSqlBtn = document.getElementById('closeSqlBtn');
   const copySqlBtn = document.getElementById('copySqlBtn');
+  const copyTshirtSqlBtn = document.getElementById('copyTshirtSqlBtn');
   const sqlCodeBlock = document.getElementById('sqlCodeBlock');
+  const tshirtSqlCodeBlock = document.getElementById('tshirtSqlCodeBlock');
 
   // Supabase Config Modal Elements
   const supaConfigModal = document.getElementById('supaConfigModal');
@@ -1137,6 +1171,40 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
     return t.status === 'approved' || t.status === 'verified';
   }
 
+  function memberTshirt(m) {
+    if (!m) return '';
+    return String(m.tshirt_size || m.tshirt || m.leader_tshirt_size || '').trim();
+  }
+
+  function leaderTshirt(team) {
+    if (!team) return '';
+    const members = Array.isArray(team.members) ? team.members : [];
+    const leaderMember = members.find(function(m) {
+      return m.is_leader === true || m.is_leader === 'true' || (m.name || m.member_name) === team.leader_name;
+    });
+    return String(
+      team.leader_tshirt_size ||
+      team.leader_tshirt ||
+      memberTshirt(leaderMember) ||
+      ''
+    ).trim();
+  }
+
+  function teamTshirtSummary(team) {
+    const sizes = [];
+    const leaderSize = leaderTshirt(team);
+    sizes.push(leaderSize ? 'L ' + leaderSize : 'L —');
+    const members = Array.isArray(team.members) ? team.members : [];
+    members.forEach(function(m) {
+      const isLeader = m.is_leader === true || m.is_leader === 'true';
+      const name = m.name || m.member_name || '';
+      if (isLeader || name === team.leader_name) return;
+      const size = memberTshirt(m);
+      sizes.push(size || '—');
+    });
+    return sizes.join(' · ');
+  }
+
   function updateStats(teams) {
     const total = teams.length;
     const verified = teams.filter(isVerified).length;
@@ -1148,14 +1216,14 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
     if (statSlots) statSlots.textContent = String(slots);
     if (statVerified) statVerified.textContent = String(verified);
     if (statPending) statPending.textContent = String(pending);
-    if (statRevenue) statRevenue.textContent = '₹' + (verified * 299);
+    if (statRevenue) statRevenue.textContent = '₹' + (verified * 150);
   }
 
   async function loadRegistrations() {
     if (regTableBody) {
       regTableBody.innerHTML = `
         <tr>
-          <td colspan="8" style="text-align:center; padding:40px; color:var(--ash);">
+          <td colspan="9" style="text-align:center; padding:40px; color:var(--ash);">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite; vertical-align:middle; margin-right:8px;"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
             Loading registrations...
           </td>
@@ -1172,7 +1240,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
       if (regTableBody) {
         regTableBody.innerHTML = `
           <tr>
-            <td colspan="8" style="text-align:center; padding:40px; color:#EF4444;">
+            <td colspan="9" style="text-align:center; padding:40px; color:#EF4444;">
               Failed to load registrations. Check console logs.
             </td>
           </tr>
@@ -1216,7 +1284,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
     if (filtered.length === 0) {
       regTableBody.innerHTML = `
         <tr>
-          <td colspan="8" style="text-align:center; padding:40px; color:var(--ash);">
+          <td colspan="9" style="text-align:center; padding:40px; color:var(--ash);">
             No registrations found matching current search / filters.
           </td>
         </tr>
@@ -1239,6 +1307,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
             <div style="font-size:12px; color:var(--ash);">${escapeHtml(college)}</div>
           </td>
           <td><span class="chip" style="font-size:11px;">${team.team_size}</span></td>
+          <td><span class="mono" style="font-size:11px; color:var(--bone);">${escapeHtml(teamTshirtSummary(team))}</span></td>
           <td>
             <div>${escapeHtml(team.leader_name)}</div>
             <div style="font-size:11.5px; font-family:var(--f-mono); color:var(--ash);">${escapeHtml(phone)}</div>
@@ -1356,6 +1425,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
         year: leaderMember?.year || team.leader_year || '',
         college: leaderMember?.college || team.college_name || '',
         dept: leaderMember?.department || team.leader_department || '',
+        tshirt: leaderMember?.tshirt_size || team.leader_tshirt_size || '',
         id_url: leaderMember?.id_card_url || '',
         is_leader: true,
       }
@@ -1372,6 +1442,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
             year: m.study_year || m.year || '',
             college: m.college || '',
             dept: m.department,
+            tshirt: m.tshirt_size || m.tshirt || '',
             id_url: m.id_card_url,
             is_leader: false,
           });
@@ -1389,7 +1460,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
                 ${m.is_leader ? '<span class="chip" style="background:rgba(144,64,237,0.2); color:var(--violet); font-size:10px;">LEADER</span>' : ''}
               </div>
               <div style="font-size:12px; color:var(--ash); margin-top:2px;">
-                ${escapeHtml(m.college || '')} • ${escapeHtml(m.dept || '')} • ${escapeHtml(m.year || '')} • <a href="tel:${m.phone}" style="color:var(--bone);">${escapeHtml(m.phone)}</a> • <a href="mailto:${m.email}" style="color:var(--violet);">${escapeHtml(m.email)}</a>
+                ${escapeHtml(m.college || '')} • ${escapeHtml(m.dept || '')} • ${escapeHtml(m.year || '')} • T-Shirt: ${escapeHtml(m.tshirt || '-')} • <a href="tel:${m.phone}" style="color:var(--bone);">${escapeHtml(m.phone)}</a> • <a href="mailto:${m.email}" style="color:var(--violet);">${escapeHtml(m.email)}</a>
               </div>
             </div>
             <div>
@@ -1487,8 +1558,8 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
       'Transaction ID', 'WhatsApp Joined',
       'Participant Number', 'Participant Role', 'Participant Name',
       'Participant Email', 'Participant Phone', 'Year of Study',
-      'College / University', 'Department', 'Parent / Guardian Phone',
-      'HOD / In-charge Phone'
+      'College / University', 'Department', 'T-Shirt Size (inches)',
+      'Parent / Guardian Phone', 'HOD / In-charge Phone'
     ];
 
     function csvValue(value) {
@@ -1506,6 +1577,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
         year: t.leader_year || t.leader_study_year || '',
         college: t.leader_college || t.college_name || '',
         department: t.leader_department || '',
+        tshirt: leaderTshirt(t),
         parentPhone: t.leader_parent_mobile || t.leader_parent_phone || '',
         hodPhone: t.leader_incharge_mobile || t.leader_hod_mobile || t.leader_hod_phone || ''
       };
@@ -1515,7 +1587,10 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
       members.forEach(function(m) {
         const isLeader = m.is_leader === true || m.is_leader === 'true';
         const memberName = m.name || m.member_name || '';
-        if (isLeader || memberName === leader.name) return;
+        if (isLeader || memberName === leader.name) {
+          if (!leader.tshirt) leader.tshirt = memberTshirt(m);
+          return;
+        }
         participantRows.push({
           participant: {
             name: memberName,
@@ -1524,6 +1599,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
             year: m.year || m.study_year || '',
             college: m.college || '',
             department: m.department || '',
+            tshirt: memberTshirt(m),
             parentPhone: m.parent_mobile || m.parent_phone || '',
             hodPhone: m.incharge_mobile || m.hod_mobile || m.hod_phone || ''
           },
@@ -1549,6 +1625,7 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
           p.year,
           p.college,
           p.department,
+          p.tshirt,
           p.parentPhone,
           p.hodPhone
         ].map(csvValue).join(','));
@@ -1567,8 +1644,26 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
     URL.revokeObjectURL(url);
   });
 
+  function copySqlText(text, btn, idleLabel) {
+    const value = (text || '').trim();
+    if (!value) return;
+    const done = function() {
+      if (!btn) return;
+      btn.textContent = 'Copied to Clipboard!';
+      setTimeout(function() { btn.textContent = idleLabel; }, 2000);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(value).then(done).catch(function() {
+        window.prompt('Copy this SQL:', value);
+      });
+    } else {
+      window.prompt('Copy this SQL:', value);
+    }
+  }
+
   // SQL Modal
   showSqlBtn?.addEventListener('click', function() {
+    if (tshirtSqlCodeBlock) tshirtSqlCodeBlock.textContent = SUPABASE_TSHIRT_ALTER_SQL.trim();
     if (sqlCodeBlock) sqlCodeBlock.textContent = SUPABASE_SCHEMA_SQL.trim();
     sqlModal?.classList.add('active');
   });
@@ -1577,15 +1672,12 @@ CREATE POLICY "Allow authenticated full access to team_members" ON public.team_m
     sqlModal?.classList.remove('active');
   });
 
+  copyTshirtSqlBtn?.addEventListener('click', function() {
+    copySqlText(SUPABASE_TSHIRT_ALTER_SQL, copyTshirtSqlBtn, 'Copy T-Shirt SQL');
+  });
+
   copySqlBtn?.addEventListener('click', function() {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(SUPABASE_SCHEMA_SQL.trim()).then(function() {
-        if (copySqlBtn) {
-          copySqlBtn.textContent = 'Copied to Clipboard!';
-          setTimeout(function() { copySqlBtn.textContent = 'Copy SQL'; }, 2000);
-        }
-      });
-    }
+    copySqlText(SUPABASE_SCHEMA_SQL, copySqlBtn, 'Copy Full Schema');
   });
 
   // Supabase Config Modal Controls
