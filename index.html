@@ -163,7 +163,13 @@ h1, h2, h3, h4 {
   border-radius: 16px;
   overflow: hidden;
   isolation: isolate;
-  transition: border-color 0.35s ease, transform 0.35s cubic-bezier(0.2, 0.7, 0.3, 1), background 0.35s ease;
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 1px 0 0 rgba(226, 225, 224, 0.07) inset,
+    0 18px 40px -26px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(0, 0, 0, 0.2);
+  transition: border-color 0.45s cubic-bezier(0.2, 0.7, 0.3, 1), transform 0.45s cubic-bezier(0.2, 0.7, 0.3, 1), background 0.45s ease, box-shadow 0.45s cubic-bezier(0.2, 0.7, 0.3, 1), backdrop-filter 0.45s ease;
 }
 
 .glass::before {
@@ -172,7 +178,9 @@ h1, h2, h3, h4 {
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(226, 225, 224, 0.07), transparent 42%);
+  background: linear-gradient(165deg, rgba(226, 225, 224, 0.12) 0%, rgba(226, 225, 224, 0.03) 28%, transparent 46%, transparent 74%, rgba(144, 64, 237, 0.05) 100%);
+  opacity: 0.9;
+  transition: opacity 0.45s ease;
 }
 
 .glass::after {
@@ -181,15 +189,28 @@ h1, h2, h3, h4 {
   inset: -1px;
   border-radius: inherit;
   pointer-events: none;
-  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), var(--violet-glow) 0%, rgba(144, 64, 237, 0.14) 32%, rgba(226, 225, 224, 0.10) 62%, transparent 78%);
+  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), var(--violet-glow) 0%, rgba(144, 64, 237, 0.16) 30%, rgba(226, 225, 224, 0.11) 58%, transparent 76%);
   opacity: 0;
-  transform: scale(1.35);
-  transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.2, 0.7, 0.3, 1);
+  transform: scale(1.4);
+  transition: opacity 0.5s cubic-bezier(0.2, 0.7, 0.3, 1), transform 0.6s cubic-bezier(0.2, 0.7, 0.3, 1);
+  mix-blend-mode: screen;
 }
 
 .glass:hover, .glass:focus-within, .glass.tapped {
-  border-color: rgba(226, 225, 224, 0.42);
-  transform: translateY(-3px);
+  border-color: rgba(226, 225, 224, 0.46);
+  background: rgba(226, 225, 224, 0.045);
+  backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  transform: translateY(-4px) scale(1.008);
+  box-shadow:
+    0 1px 0 0 rgba(226, 225, 224, 0.14) inset,
+    0 28px 60px -22px rgba(0, 0, 0, 0.7),
+    0 0 30px -6px var(--violet-glow),
+    0 0 0 1px rgba(226, 225, 224, 0.08);
+}
+
+.glass:hover::before, .glass:focus-within::before, .glass.tapped::before {
+  opacity: 1;
 }
 
 .glass:hover::after, .glass:focus-within::after, .glass.tapped::after {
@@ -198,9 +219,15 @@ h1, h2, h3, h4 {
 }
 
 .glass--panel {
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  background: rgba(11, 9, 18, 0.65);
+  backdrop-filter: blur(26px) saturate(180%);
+  -webkit-backdrop-filter: blur(26px) saturate(180%);
+  background: rgba(11, 9, 18, 0.6);
+}
+
+.glass--panel:hover, .glass--panel:focus-within {
+  backdrop-filter: blur(30px) saturate(190%);
+  -webkit-backdrop-filter: blur(30px) saturate(190%);
+  background: rgba(14, 11, 22, 0.68);
 }
 
 /* Preloader */
@@ -326,10 +353,11 @@ h1, h2, h3, h4 {
 }
 
 .nav.stuck {
-  background: rgba(6, 5, 11, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(6, 5, 11, 0.72);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
   border-bottom-color: var(--hair);
+  transition: background 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease;
 }
 
 :root.intro .nav {
@@ -2202,8 +2230,8 @@ document.addEventListener('DOMContentLoaded', function() {
       if (g.p) g.p.style.strokeDasharray = g.len + ' ' + (L * 2);
     });
 
-    const DUR = 1400;
-    const LAPS = 2.0;
+    const DUR = 3200;
+    const LAPS = 2.4;
     let t0 = null;
     let doneCalled = false;
 
