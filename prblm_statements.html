@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Round 2 Problem Statement — SOLVIX'26</title>
+<meta name="description" content="SOLVIX'26 Round 1 — teams log in with their team name and choose a problem statement from any domain.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23000000'/%3E%3Ctext x='50' y='50' dy='.36em' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='74' fill='%239040ED'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=Azeret+Mono:wght@400;500&display=swap">
+
+<!-- Supabase CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  window.SOLVIX_SUPABASE_CONFIG = window.SOLVIX_SUPABASE_CONFIG || { url: 'https://jcpkgwbmalxhooxscpve.supabase.co', anonKey: 'sb_publishable_9Qg6FE8AYh88bM0kfgV_-g_rUemvzop' };
+</script>
+
+<style>
+/* ==========================================================================
+   SOLVIX'26 — PROBLEM STATEMENT PICKER — shares the design system used by
+   register.html (tokens, resets, .glass/.card/.btn/.notice/.field) so this
+   page looks and feels like part of the same site.
+   ========================================================================== */
+:root {
+  --void: #000000;
+  --ink: #06050b;
+  --ink-2: #0b0912;
+  --card: #12101b;
+  --card-hover: #181525;
+  --card-solid: #0e0c16;
+  --border: rgba(226, 225, 224, 0.12);
+  --border-subtle: rgba(226, 225, 224, 0.06);
+  --border-focus: #9040ed;
+  --r-card: 16px;
+  --violet: #9040ed;
+  --violet-lo: #5b2a96;
+  --violet-glow: rgba(144, 64, 237, 0.38);
+  --bone: #e2e1e0;
+  --ash: #8e88a0;
+  --ash-dim: #5d5771;
+  --hair: rgba(226, 225, 224, 0.11);
+  --hair-2: rgba(226, 225, 224, 0.06);
+  --amber: #e8a317;
+  --emerald: #10b981;
+  --crimson: #ef4444;
+  --glass: rgba(226, 225, 224, 0.028);
+  --glass-edge: rgba(226, 225, 224, 0.13);
+
+  --f-display: 'Anton', 'Oswald', 'Arial Narrow', Impact, sans-serif;
+  --f-body: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --f-mono: 'Azeret Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --page: 1200px;
+  --gut: clamp(20px, 5vw, 64px);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img { display: block; max-width: 100%; }
+a { color: inherit; }
+h1, h2, h3, h4 { margin: 0; text-wrap: balance; font-weight: 600; line-height: 1.08; }
+
+.hue { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.hue::before, .hue::after { content: ''; position: absolute; border-radius: 50%; filter: blur(90px); }
+.hue::before { width: 120vw; height: 70vh; left: -20vw; top: -32vh; background: radial-gradient(circle at 50% 50%, rgba(144, 64, 237, 0.20), rgba(144, 64, 237, 0.05) 45%, transparent 70%); }
+.hue::after { width: 90vw; height: 60vh; right: -30vw; bottom: -25vh; background: radial-gradient(circle at 50% 50%, rgba(91, 42, 150, 0.16), transparent 68%); }
+
+.container { max-width: var(--page); margin: 0 auto; padding-inline: var(--gut); }
+
+/* Nav */
+.nav { position: sticky; top: 0; z-index: 40; border-bottom: 1px solid transparent; transition: 0.3s; background: rgba(6, 5, 11, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom-color: var(--hair); }
+.nav__in { display: flex; align-items: center; gap: 22px; padding-block: 8px; overflow: visible; }
+.nav__logos { display: flex; align-items: center; gap: 14px; flex-shrink: 0; text-decoration: none; }
+.nav__logos img { width: auto; object-fit: contain; opacity: 0.95; transition: opacity 0.2s; }
+.brand-logo { display: block; width: auto; object-fit: contain; }
+.nav__logos img.brand-logo--aiml { height: 44px; max-width: 108px; }
+.nav__logos img.brand-logo--jeppiaar { height: 118px; max-height: none !important; max-width: none !important; width: auto !important; flex-shrink: 0; transform: scale(1.22); transform-origin: center center; margin-block: -28px; position: relative; z-index: 1; }
+.nav__logos img.brand-logo--empowered { height: 44px; max-width: 160px; }
+.nav__logos:hover img { opacity: 1; }
+.brand-divider { color: var(--hair); font-size: 20px; line-height: 1; }
+.nav__right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+@media (max-width: 700px) {
+  .nav__in { gap: 12px; }
+  .nav__logos { gap: 8px; min-width: 0; }
+  .nav__logos img.brand-logo--aiml { height: 34px; max-width: 78px; }
+  .nav__logos img.brand-logo--jeppiaar { height: 86px; max-height: none !important; max-width: none !important; transform: scale(1.18); margin-block: -18px; }
+  .nav__logos img.brand-logo--empowered { height: 34px; max-width: 120px; }
+  .brand-divider { font-size: 16px; }
+}
+@media (max-width: 430px) {
+  .nav__logos img.brand-logo--aiml { height: 30px; max-width: 68px; }
+  .nav__logos img.brand-logo--jeppiaar { height: 72px; max-height: none !important; max-width: none !important; transform: scale(1.16); margin-block: -14px; }
+  .nav__logos img.brand-logo--empowered { height: 30px; max-width: 110px; }
+  .brand-divider { display: none; }
+}
+
+/* Glass & Cards */
+.glass { position: relative; background: var(--glass); border: 1px solid var(--glass-edge); border-radius: 16px; overflow: hidden; isolation: isolate; }
+.glass::before { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: linear-gradient(180deg, rgba(226, 225, 224, 0.07), transparent 42%); }
+.card { padding: clamp(20px, 3vw, 30px); }
+
+.chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--hair); font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.06em; color: var(--ash); white-space: nowrap; background: rgba(226, 225, 224, 0.02); }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 3px rgba(232, 163, 23, 0.16); }
+.dot--live { background: var(--emerald); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; padding: 13px 22px; border-radius: 999px; border: 1px solid transparent; font-family: var(--f-body); font-size: 14px; font-weight: 600; letter-spacing: 0.01em; text-decoration: none; cursor: pointer; white-space: nowrap; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn--primary { background: linear-gradient(180deg, #a45cf2, var(--violet)); color: #0b0512; box-shadow: 0 0 0 1px rgba(226, 225, 224, 0.18) inset, 0 10px 34px -12px var(--violet-glow); }
+.btn--primary:hover:not(:disabled) { box-shadow: 0 0 0 1px rgba(226, 225, 224, 0.34) inset, 0 14px 44px -10px var(--violet-glow); }
+.btn--ghost { border-color: var(--glass-edge); color: var(--bone); background: var(--glass); }
+.btn--ghost:hover:not(:disabled) { border-color: rgba(226, 225, 224, 0.42); }
+.btn--sm { padding: 8px 16px; font-size: 13px; }
+
+.eyebrow { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ash-dim); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.eyebrow::before { content: ''; width: 26px; height: 1px; background: var(--violet-lo); flex-shrink: 0; }
+
+.reg-hero { padding: 120px 0 30px; position: relative; }
+
+.notice { display: flex; gap: 11px; padding: 13px 15px; border-radius: 12px; margin-bottom: 22px; background: rgba(232, 163, 23, 0.07); border: 1px solid rgba(232, 163, 23, 0.26); font-size: 13.5px; color: #f0ce8b; line-height: 1.5; }
+.notice--info { background: rgba(144, 64, 237, 0.09); border-color: rgba(144, 64, 237, 0.35); color: #d8b4fe; }
+.notice--error { background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.3); color: #fca5a5; }
+.notice--success { background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.3); color: #a7f3d0; }
+
+.field { display: flex; flex-direction: column; gap: 6px; position: relative; }
+.req { color: var(--crimson); font-weight: bold; }
+.error-msg { color: var(--crimson); font-size: 11.5px; font-family: var(--f-mono); min-height: 14px; display: block; }
+label { display: block; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ash); margin-bottom: 4px; }
+input[type="text"] { width: 100%; padding: 14px 16px; border-radius: 11px; background: rgba(226, 225, 224, 0.035); border: 1px solid var(--hair); color: var(--bone); font-family: var(--f-body); font-size: 16px; }
+input:focus { outline: none; border-color: var(--violet); background: rgba(144, 64, 237, 0.09); box-shadow: 0 0 0 3px rgba(144, 64, 237, 0.16); }
+input.invalid { border-color: var(--crimson); background: rgba(239, 68, 68, 0.06); }
+input::placeholder { color: var(--ash-dim); }
+
+/* Team dropdown */
+select.team-select { width: 100%; padding: 14px 16px; border-radius: 11px; background: rgba(226, 225, 224, 0.035); border: 1px solid var(--hair); color: var(--bone); font-family: var(--f-body); font-size: 16px; appearance: none; color-scheme: dark; background-image: linear-gradient(45deg, transparent 50%, var(--ash) 50%), linear-gradient(135deg, var(--ash) 50%, transparent 50%); background-position: calc(100% - 19px) 50%, calc(100% - 14px) 50%; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
+select.team-select:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 3px rgba(144, 64, 237, 0.16); }
+select.team-select option { background: var(--ink-2); color: var(--bone); }
+
+/* Step header (team chip + step label) */
+.step-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 0 0 18px; }
+
+/* Domain grid */
+.domain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.domain-card { border: 1px solid var(--border); border-radius: var(--r-card); background: var(--card); padding: 22px 20px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; gap: 18px; min-height: 130px; }
+.domain-card:hover { border-color: rgba(144, 64, 237, 0.5); background: var(--card-hover); }
+.domain-card.picked { border-color: rgba(16, 185, 129, 0.55); }
+.domain-name { font-family: var(--f-display); font-size: 19px; letter-spacing: 0.02em; text-transform: uppercase; color: var(--bone); line-height: 1.15; }
+.domain-foot { display: flex; align-items: center; justify-content: space-between; }
+.domain-count { font-family: var(--f-mono); font-size: 11px; color: var(--ash-dim); }
+.domain-go { color: var(--violet); }
+
+/* Statement cards */
+.statement-list { display: grid; gap: 12px; }
+.statement-card { border: 1px solid var(--hair); border-radius: 12px; padding: 16px 18px; cursor: pointer; background: rgba(255,255,255,0.015); display: flex; gap: 14px; align-items: flex-start; }
+.statement-card:hover { border-color: rgba(144, 64, 237, 0.45); background: rgba(144, 64, 237, 0.06); }
+.statement-card.selected { border-color: var(--violet); background: rgba(144, 64, 237, 0.12); box-shadow: 0 0 0 1px var(--violet) inset; }
+.statement-radio { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--ash); flex-shrink: 0; margin-top: 3px; display: grid; place-items: center; }
+.statement-card.selected .statement-radio { border-color: var(--violet); background: var(--violet); }
+.statement-card.selected .statement-radio::after { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #0b0512; }
+.statement-id { font-family: var(--f-mono); font-size: 10.5px; color: var(--ash-dim); margin-bottom: 5px; letter-spacing: 0.06em; }
+.statement-title { font-weight: 700; color: var(--bone); font-size: 15px; margin-bottom: 4px; line-height: 1.3; }
+.statement-body { font-size: 13.5px; color: var(--ash); line-height: 1.55; }
+
+/* Sticky confirm bar */
+.confirm-bar { position: sticky; bottom: 0; margin-top: 20px; padding: 18px 22px; background: rgba(10, 9, 15, 0.94); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--glass-edge); border-radius: var(--r-card); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; box-shadow: 0 -10px 40px -12px rgba(0,0,0,0.6); }
+.confirm-bar__label { font-family: var(--f-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ash-dim); }
+.confirm-bar__value { font-size: 14px; color: var(--bone); margin-top: 4px; max-width: 560px; }
+
+.step-title { font-family: var(--f-display); font-size: clamp(20px, 3.5vw, 26px); letter-spacing: 0.02em; text-transform: uppercase; margin: 0 0 6px; }
+
+@media (max-width: 600px) { .reg-hero { padding: 96px 0 20px; } }
+</style>
+</head>
+<body>
+
+<div class="hue"></div>
+
+<header class="nav" id="nav">
+  <div class="container nav__in">
+    <a href="index.html" class="nav__logos" aria-label="AI and ML, Jeppiaar Engineering College, in collaboration with EmpowerED">
+      <img src="https://i.ibb.co/TMbVhPWr/dept-logo.png" alt="AI &amp; ML" class="brand-logo brand-logo--aiml">
+      <span class="brand-divider" aria-hidden="true">|</span>
+      <img src="https://i.ibb.co/nNGsHxj4/An-Autonomous-Institution-20260805-210441-0000.png" alt="Jeppiaar Engineering College" class="brand-logo brand-logo--jeppiaar">
+      <span class="brand-divider" aria-hidden="true">&times;</span>
+      <img src="https://i.ibb.co/Kvykptr/Chat-GPT-Image-Sep-8-2026-05-55-32-PM.png" alt="EmpowerED" class="brand-logo brand-logo--empowered">
+    </a>
+    <div class="nav__right">
+      <a class="btn btn--ghost btn--sm" href="index.html">&larr; Back to Overview</a>
+    </div>
+  </div>
+</header>
+
+<div class="reg-hero">
+  <div class="container" style="max-width:880px;">
+    <p class="eyebrow" style="margin-bottom:8px;">Round 2 &middot; Problem Statement Selection</p>
+    <h1 style="font-family:var(--f-display); font-size:clamp(34px, 6vw, 56px); letter-spacing:0.02em; line-height:1; margin:0 0 14px;">
+      Pick your <span style="color:var(--violet);">problem statement</span>
+    </h1>
+    <p style="color:var(--ash); font-size:15.5px; max-width:640px; line-height:1.6; margin:0 0 4px;">
+      Select your team, choose a domain, then pick a problem statement. You'll get to confirm before it's locked in, and you can go back and choose a different one at any point until you confirm.
+    </p>
+  </div>
+</div>
+
+<div class="container" style="max-width:880px; padding-bottom:100px;">
+
+  <!-- Default closed state: shown whenever picking isn't open yet. The page
+       stays in this state even if the script below fails to run, because the
+       login/picker views are hidden with inline styles. To open picking, flip
+       STATEMENTS_LIVE to true near the top of the script at the bottom of
+       this file. -->
+  <div class="glass card" id="notLiveCard" style="padding:clamp(28px,5vw,48px); text-align:center;">
+    <div style="width:56px; height:56px; margin:0 auto 20px; border-radius:50%; background:rgba(144,64,237,0.14); border:1px solid rgba(144,64,237,0.34); display:grid; place-items:center;">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9040ED" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <h2 style="font-family:var(--f-display); font-size:clamp(24px,4vw,32px); letter-spacing:0.02em; margin:0 0 12px;">Problem Statements Aren't Live Yet</h2>
+    <p style="color:var(--ash); font-size:15.5px; max-width:480px; margin:0 auto; line-height:1.6;">
+      Domains and problem statements will be revealed here once Round 1 opens on the day of the event. Keep this page bookmarked and refresh when it's announced.
+    </p>
+    <a class="btn btn--primary" href="index.html" style="margin-top:26px;">&larr; Back to overview</a>
+  </div>
+
+  <div id="liveArea" style="display:none;">
+
+    <!-- STEP 1: TEAM SELECT -->
+    <div class="glass card" id="stepTeam">
+      <p class="step-title">Select your team</p>
+      <p style="color:var(--ash); font-size:14px; margin:0 0 18px;">Pick your team name from the list to begin.</p>
+      <div class="field">
+        <label for="teamSelect">Team Name</label>
+        <select class="team-select" id="teamSelect">
+          <option value="">— Choose your team —</option>
+        </select>
+        <small class="error-msg" id="teamError"></small>
+      </div>
+      <button type="button" class="btn btn--primary" id="teamContinueBtn" style="width:100%; margin-top:18px; padding:14px;" disabled>Continue &nbsp;&rarr;</button>
+    </div>
+
+    <!-- STEP 2: DOMAIN SELECT -->
+    <div id="stepDomain" style="display:none;">
+      <div class="step-top">
+        <span class="chip"><span class="dot dot--live"></span>Team: <b id="teamChip1" style="color:var(--bone); font-weight:700;"></b></span>
+        <button class="btn btn--ghost btn--sm" id="changeTeamBtn" type="button">Change team</button>
+      </div>
+
+      <div class="notice notice--success" id="existingPickBanner" style="display:none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+        <span>This team has already confirmed: <b id="existingPickLabel"></b>. You can change it by choosing again below.</span>
+      </div>
+
+      <p class="step-title" style="margin-top:8px;">Choose your domain</p>
+      <p style="color:var(--ash); font-size:14px; margin:0 0 18px;">Pick the domain you want to work in. You'll see its problem statements next.</p>
+      <div class="domain-grid" id="domainGrid"></div>
+    </div>
+
+    <!-- STEP 3: STATEMENT SELECT -->
+    <div id="stepStatements" style="display:none;">
+      <div class="step-top">
+        <span class="chip"><span class="dot dot--live"></span>Team: <b id="teamChip2" style="color:var(--bone); font-weight:700;"></b></span>
+        <button class="btn btn--ghost btn--sm" id="backToDomainsBtn" type="button">&larr; Back to domains</button>
+      </div>
+      <p class="step-title" id="statementsDomainName" style="margin-top:8px;"></p>
+      <p style="color:var(--ash); font-size:14px; margin:0 0 18px;">Click a problem statement to select it, then confirm. Not sure? Pick another or go back to the domains.</p>
+
+      <div class="statement-list" id="statementList"></div>
+
+      <div class="notice notice--info" id="offlineBanner" style="display:none; margin-top:18px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>Saved on this device &mdash; couldn't reach the server yet. It'll sync automatically once you're back online. If the event is starting, tell a coordinator your pick as a backup.</span>
+      </div>
+
+      <div class="confirm-bar" id="confirmBar" style="display:none;">
+        <div>
+          <div class="confirm-bar__label">Selected statement</div>
+          <div class="confirm-bar__value" id="confirmBarText"></div>
+        </div>
+        <button class="btn btn--primary" id="confirmBtn" type="button">Confirm this statement</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: DONE -->
+    <div class="glass card" id="stepDone" style="display:none; text-align:center; padding:clamp(28px,5vw,48px);">
+      <div style="width:56px; height:56px; margin:0 auto 20px; border-radius:50%; background:rgba(16,185,129,0.14); border:1px solid rgba(16,185,129,0.4); display:grid; place-items:center;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+      <h2 style="font-family:var(--f-display); font-size:clamp(22px,4vw,30px); letter-spacing:0.02em; margin:0 0 10px;">Your statement is confirmed</h2>
+      <p style="color:var(--ash); font-size:14px; margin:0 auto 6px;">Team <b id="doneTeam" style="color:var(--bone);"></b> is locked in on:</p>
+      <p style="color:var(--bone); font-size:15px; max-width:560px; margin:0 auto; line-height:1.55;" id="doneStatement"></p>
+      <div style="margin-top:24px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <button class="btn btn--ghost" id="changeSelectionBtn" type="button">Change my selection</button>
+        <a class="btn btn--ghost" href="index.html">Back to overview</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  // ====== PICKING SWITCH ======
+  // The login/picker views are hidden and a "not live yet" card is shown by
+  // default in the HTML itself, so the page stays closed even if this script
+  // fails to run. Set this to true (and reload) to open problem-statement
+  // picking on the day of the event.
+  const STATEMENTS_LIVE = true;
+
+  // ====== PROBLEM STATEMENTS ======
+  // Round 2 — loaded verbatim from R2-All_statements.pdf.
+  // Eleven civic domains, three statements each.
+  const DOMAINS = [
+    { id: 'EM', name: 'Emergency Management', statements: [
+      "Real-Time Multi-Source Disaster Intelligence and Early Warning System: The proposed system aggregates real-time data from social media platforms, weather APIs, and local sensors to identify early signs of emerging disasters such as fires, cyclones, floods, and industrial accidents. Using AI-based analysis and anomaly detection, the system evaluates incoming information, detects potential threats, and generates timely alerts containing the location, type, severity, and supporting evidence of the incident. Instead of directly alerting the public, the information is sent to relevant government and emergency authorities for verification, assessment, and prompt action, helping officials respond to disasters faster and more effectively.",
+      "Emergency Communication When Networks Fail: During disasters, cellular networks and internet infrastructure may fail, disrupting communication between affected communities and emergency authorities. Develop a resilient communication system that enables reliable transmission of distress signals, location information, and critical emergency messages using alternative technologies such as mesh networks, drones, or satellite connectivity.",
+      "Missing Person Information Matching: During disasters and emergencies, information about missing and found individuals is often scattered across police reports, hospitals, shelters, and public submissions, making manual identification and matching time-consuming. Develop an AI-assisted system that matches missing-person reports with found-person records using available information such as photographs, age, gender, clothing, and location, helping authorities and relief organizations identify potential matches and accelerate reunification.",
+    ]},
+    { id: 'HC', name: 'Healthcare', statements: [
+      "AI-Powered Rural Emergency Triage and Healthcare Guidance: Rural and low-literacy communities often face difficulties communicating symptoms and identifying the appropriate level of medical care, leading to delayed treatment or unnecessary hospital visits. Develop an AI-powered triage chatbot with voice support that enables users to describe symptoms in simple language or speech, provides preliminary health guidance, assesses urgency, and recommends the nearest suitable healthcare facility based on the situation and location.",
+      "Intelligent Clinical Documentation and Data Capture: Healthcare professionals spend significant time creating, updating, and organizing clinical documentation, reducing the time available for direct patient care. Develop an intelligent system that assists clinicians in capturing patient information from consultations and automatically structuring relevant data into standardized clinical records. The solution should improve documentation efficiency and data quality while keeping clinicians in control through review and approval before records are finalized.",
+      "Intelligent Medication Reconciliation for Patient Safety: Medication discrepancies frequently occur when patients move between healthcare settings, such as hospital admission, transfer, referral, and discharge. Incomplete or inconsistent medication information can lead to omitted medicines, duplicate prescriptions, incorrect dosages, or other preventable medication-related harm. Develop an intelligent medication reconciliation system that consolidates medication information from prescriptions, patient records, and clinical encounters, identifies potential discrepancies and changes, and highlights them for healthcare professionals to review and resolve before treatment decisions are finalized.",
+    ]},
+    { id: 'WM', name: 'Water Management', statements: [
+      "Intelligent Water Network Leakage Detection and Loss Reduction: Water distribution networks lose significant quantities of treated water through pipeline leaks, faulty meters, and unauthorized connections. Develop an intelligent system that analyzes flow, pressure, and consumption data to detect abnormal patterns, identify probable leakage locations, and prioritize areas for inspection and repair.",
+      "Predictive Water Demand & Equitable Distribution: Develop a community water-demand forecasting system that predicts potential shortages in individual wards 7-15 days in advance using historical consumption, weather, and supply data. The system should recommend equitable water-distribution schedules to help authorities manage limited resources and prevent localized shortages.",
+      "Real-Time Water Quality Monitoring & Contamination Alerts: Develop a citizen-facing platform that provides real-time water-quality information using sensor and laboratory data, identifies potential contamination events, and issues timely alerts. The system should also help residents locate verified safe alternative water sources during contamination incidents.",
+    ]},
+    { id: 'WS', name: 'Waste Management', statements: [
+      "Waste-to-Resource Recovery: Recoverable materials such as plastics, metals, paper, and organic matter are frequently lost when different waste streams are mixed and sent directly for disposal. Develop a system that identifies and separates recoverable materials from mixed waste, improving material recovery and reducing the amount of waste sent to landfills.",
+      "IoT-Based Plastic Waste Recovery: Large quantities of plastic waste are lost from the recycling chain because collection, sorting, and recovery activities are poorly tracked. Develop an IoT-enabled collection system that measures and tracks plastic waste quantities at recovery points, helping ensure collected material reaches appropriate recycling processes.",
+      "IoT-Based Unauthorized Waste Dumping Detection: Waste is frequently disposed of in unauthorized locations such as vacant land, roadsides, and waterways, contributing to pollution and public-health risks. Develop an IoT-based monitoring system using cameras or environmental sensors to detect new dumping activity and generate evidence of the incident and its location.",
+    ]},
+    { id: 'TM', name: 'Traffic Management', statements: [
+      "Real-Time Illegal Parking Detection: Vehicles parked in no-parking zones, on road shoulders, and near intersections can obstruct traffic and create bottlenecks. Develop a system using cameras, computer vision, or IoT sensors to detect unauthorized parking in real time and generate location-based alerts for enforcement or removal.",
+      "Intelligent Traffic Signal Monitoring and Violation Detection: Develop an AI and IoT-based system that monitors traffic signal health and detects abnormal signal conditions while identifying vehicles that violate red signals. The system should generate real-time alerts and capture evidence of detected violations and signal faults.",
+      "Driver Distraction and Unsafe Driving Detection: Distracted driving, aggressive lane changes, sudden braking, and other unsafe driving behaviors increase the likelihood of road accidents. Develop a vehicle- or camera-based system that detects high-risk driving patterns in real time and provides immediate warnings to the driver.",
+    ]},
+    { id: 'PS', name: 'Public Safety', statements: [
+      "AI-Powered Emergency Response System: Develop a system that receives emergency information from CCTV, sensors, text, or voice reports, identifies the type and location of an incident, and provides real-time situational information to emergency responders. Similar 2026 hackathon challenges are exploring multimodal emergency-response systems.",
+      "Missing Person Detection in Crowded Areas: Develop a privacy-conscious computer-vision system that assists authorities in locating a missing person across multiple camera feeds using non-sensitive visual attributes and time/location-based search.",
+      "Crowd Surge and Stampede Early-Warning System: Develop an AI-based system that analyzes crowd density, movement patterns, and flow direction to detect abnormal crowd behavior and provide early warnings before dangerous crowd surges occur.",
+    ]},
+    { id: 'PT', name: 'Public Transportation', statements: [
+      "Real-Time Bus ETA Prediction: Develop an AI-based system that predicts the real-time arrival time of buses at upcoming stops using GPS location, traffic conditions, historical travel patterns, and route information. The ETA should continuously update as the bus moves, providing passengers with more accurate and reliable arrival information. Real-world systems already use GPS, traffic, and historical data for ML-based ETA prediction.",
+      "AI-Based Dynamic Public Transport Scheduling: Develop an AI-based system that dynamically optimizes public bus schedules and vehicle deployment based on passenger demand, traffic conditions, current delays, route congestion, and vehicle availability. The system should analyze historical and real-time transportation data to identify overcrowded routes, underutilized services, and emerging delays, and dynamically recommend adjustments to bus frequency and deployment. The solution should help reduce passenger waiting time, overcrowding, and service delays while improving the overall utilization of available buses.",
+      "Road Transport Fleet Telematics: Develop an integrated AI and IoT-based telematics platform for monitoring and optimizing road transport operations in real time. The system should combine live vehicle location, route information, fuel consumption, vehicle condition, driver behavior, and journey performance to provide a unified view of fleet operations. It should identify inefficient routes, excessive fuel consumption, unsafe driving patterns, abnormal vehicle conditions, and underutilized vehicle capacity. The platform should provide real-time alerts, analytics, and actionable insights through a centralized dashboard, helping fleet operators improve route efficiency, vehicle utilization, safety, fuel efficiency, and overall operational performance.",
+    ]},
+    { id: 'FM', name: 'Flood Management', statements: [
+      "Real-Time Flood Risk Mapping: Develop a geospatial platform that combines satellite imagery, elevation data, rainfall, drainage networks, and historical flood information to continuously identify areas at risk of flooding. The system should generate dynamic flood-risk maps that can be updated as environmental conditions change. A comparable flood-hazard mapping concept was recognized in the MIT Solve Global Climate Challenge and the Location Intelligence for Smart Cities Hackathon.",
+      "Smart Water Gate and Flood Control: Develop an IoT-enabled water-gate monitoring and control system that continuously measures rainfall, upstream/downstream water levels, and flow conditions. The system should detect rapidly changing conditions and assist in managing water gates to reduce the risk of downstream flooding. Smart water-gate systems have appeared in MIT Solve's 2025 Global Climate Challenge.",
+      "Camera-Based Real-Time Flood Water Detection: Flood conditions can change rapidly, while conventional water-level sensors are available only at limited locations. Develop a computer-vision system that uses CCTV, traffic cameras, or roadside cameras to detect water accumulation and estimate its severity from live video. The system should identify newly flooded locations and continuously update a flood map for authorities and road users.",
+    ]},
+    { id: 'IN', name: 'Infrastructure', statements: [
+      "Dynamic Public Transport Route Rationalization Using AI: Public transport routes and schedules are often designed using historical traffic and travel patterns, but real-world conditions can change rapidly due to congestion, accidents, road closures, weather, and variations in passenger demand. Develop an AI/ML-based system that continuously analyzes real-time traffic, road, vehicle, and passenger data to identify inefficient routes and dynamically recommend route, frequency, or fleet adjustments. The system should aim to reduce passenger waiting time, delays, bus bunching, and inefficient fleet utilization while maintaining reliable service across the transport network.",
+      "AI-Based Unauthorized Construction Monitoring: Develop an AI and geospatial-based system to monitor urban areas for potential unauthorized construction by analyzing satellite, drone, and aerial imagery captured at different time intervals. The system should detect significant changes in land use or newly constructed structures, identify locations requiring verification, and display them on a GIS-based dashboard. It should maintain a historical record of detected changes and generate reports to support authorities in inspection, enforcement, and urban planning. This is based on Smart India Hackathon 2024 problem statement SIH1618, submitted by the Government of NCT of Delhi.",
+      "Real-Time Infrastructure Anomaly Detection: Develop an AI and IoT-based system that continuously monitors critical infrastructure such as water pipelines, power equipment, traffic systems, bridges, and building systems using real-time sensor data. The system should identify abnormal patterns that may indicate equipment degradation, faults, or impending failures, generate timely alerts, and provide a dashboard showing the affected asset and its current condition. The solution may also use historical sensor data to identify recurring failure patterns and support predictive maintenance, helping infrastructure operators move from reactive repairs to proactive monitoring. This problem theme is reflected in recent Devpost infrastructure/IoT hackathon projects focused on real-time anomaly detection and predictive maintenance.",
+    ]},
+    { id: 'CN', name: 'Connectivity', statements: [
+      "Offline Emergency Communication Network: Develop an offline-first communication system that allows people to exchange critical messages, SOS alerts, and location information when cellular and internet connectivity are unavailable. The system should use peer-to-peer technologies such as Bluetooth or Wi-Fi Direct to relay messages across multiple devices and support multi-hop communication.",
+      "Self-Healing Disaster Communication Network: Develop a decentralized communication network that automatically forms and maintains connections between nearby devices when conventional telecom infrastructure fails. The system should support multi-hop message forwarding, emergency broadcasts, and dynamic rerouting when individual network nodes become unavailable. Similar mesh-network approaches have been developed for disaster scenarios in hackathons.",
+      "Rural Connectivity Using Community Mesh Networks: Develop a low-cost mesh-network solution for communities in areas with limited or unreliable telecom infrastructure. The system should allow nearby devices or communication nodes to share connectivity and extend coverage without requiring a conventional network tower at every location. Mesh-based connectivity has been explored for infrastructure-challenged communities and rural users.",
+    ]},
+    { id: 'ED', name: 'Education', statements: [
+      "Offline AI-Powered Personalized Learning: Develop an offline-first learning platform that uses AI to adapt learning content, practice questions, and feedback based on each student's performance. The system should continue functioning with limited or no internet connectivity and provide teachers with useful insights into student progress. MIT Solve has highlighted this exact combination of AI, personalization, and offline access through solutions such as Class Saathi.",
+      "AI-Driven Inclusive Assessment: Develop an AI-powered assessment system that evaluates students through multiple forms of interaction, including text, speech, images, and practical tasks. The system should identify learning gaps, provide immediate feedback, and support students with different learning needs while reducing the workload involved in manual assessment. This closely follows an actual SIH problem on AI-Driven Inclusive Assessment Tools.",
+      "Accessible Education for Students with Disabilities: Develop an AI-powered learning system that converts educational material into accessible formats such as speech, captions, simplified text, or sign-language-supported content. The system should allow learners with different disabilities to access the same curriculum more independently. Accessibility and learning differences are explicit priorities in MIT Solve's Global Learning Challenge, while SIH has included Indian Sign Language translation problems.",
+    ]},
+  ];
+
+  // ====== TEAM NAMES ======
+  // PLACEHOLDER LIST — replace this array with the real team names from your
+  // Excel sheet (one quoted string per team). The dropdown is built from this
+  // list, so only these names can be selected. Paste the exact same list into
+  // problem-picks-admin.html so the admin view can show which teams haven't
+  // picked yet.
+  const TEAM_NAMES = [
+    'Team edutech',
+    'Null Pointers',
+    'Team Elite',
+    'Hacktivators',
+    'HackStorm',
+    'Synergy',
+    'LoopTrrop',
+    'The Renegades',
+    'Hackforge',
+    'Fusion',
+    'Error 405',
+    'Innox',
+    'Outliers',
+    'Pixel pioneers',
+    'ManifestX',
+    'DevSquad',
+    'Red smurfs',
+    'Vyomex',
+    'Hack wizards',
+    'Z-wizards',
+    'Hems Defenders',
+    'Nexora',
+    'POWERHOUSE',
+    'BEYOND CODE',
+    'HackOverflow',
+    'Power nexus',
+    'Bharat Innovators',
+    'Cyber tech',
+    'Alpha minds',
+    'Syntax Error',
+    'EAGLES EYE',
+    'HEKT',
+  ];
+
+  const LOCAL_KEY = 'solvix_ps_r2_v1';
+  const SESSION_KEY = 'solvix_ps_r2_team';
+
+  const notLiveCard = document.getElementById('notLiveCard');
+  const liveArea = document.getElementById('liveArea');
+  const stepTeam = document.getElementById('stepTeam');
+  const stepDomain = document.getElementById('stepDomain');
+  const stepStatements = document.getElementById('stepStatements');
+  const stepDone = document.getElementById('stepDone');
+  const teamSelect = document.getElementById('teamSelect');
+  const teamContinueBtn = document.getElementById('teamContinueBtn');
+  const teamChip1 = document.getElementById('teamChip1');
+  const teamChip2 = document.getElementById('teamChip2');
+  const changeTeamBtn = document.getElementById('changeTeamBtn');
+  const domainGrid = document.getElementById('domainGrid');
+  const existingPickBanner = document.getElementById('existingPickBanner');
+  const existingPickLabel = document.getElementById('existingPickLabel');
+  const statementList = document.getElementById('statementList');
+  const statementsDomainName = document.getElementById('statementsDomainName');
+  const backToDomainsBtn = document.getElementById('backToDomainsBtn');
+  const confirmBar = document.getElementById('confirmBar');
+  const confirmBarText = document.getElementById('confirmBarText');
+  const confirmBtn = document.getElementById('confirmBtn');
+  const offlineBanner = document.getElementById('offlineBanner');
+  const stepDoneTeam = document.getElementById('doneTeam');
+  const doneStatement = document.getElementById('doneStatement');
+  const changeSelectionBtn = document.getElementById('changeSelectionBtn');
+
+  if (!STATEMENTS_LIVE) {
+    return; // stay on the default closed state
+  }
+  notLiveCard.style.display = 'none';
+  liveArea.style.display = '';
+
+  /* ---- Supabase client ---- */
+  let supabaseClient = null;
+  try {
+    const config = window.SOLVIX_SUPABASE_CONFIG;
+    if (config && config.url && config.anonKey && window.supabase) {
+      supabaseClient = window.supabase.createClient(config.url, config.anonKey);
+    }
+  } catch (e) { /* fall back to local-only mode below */ }
+
+  /* ---- state ---- */
+  let currentTeam = null;      // team name string
+  let currentDomain = null;    // domain object
+  let selected = null;         // { domain, index, id, title, text }
+
+  function escapeHtml(str) {
+    return String(str == null ? '' : str).replace(/[&<>"']/g, function (c) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+    });
+  }
+  // Statements are stored as "Title: body". Split once for display.
+  function splitStatement(text) {
+    const i = text.indexOf(': ');
+    if (i === -1) return { title: text, body: '' };
+    return { title: text.slice(0, i), body: text.slice(i + 2) };
+  }
+
+  function getLocalPicks() {
+    try { return JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]'); } catch (e) { return []; }
+  }
+  function saveLocalPick(pick) {
+    try {
+      const all = getLocalPicks().filter(function (p) { return p.team_name !== pick.team_name; });
+      all.push(pick);
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(all));
+    } catch (e) { /* ignore quota errors */ }
+  }
+
+  /* ---- step navigation ---- */
+  function showStep(name) {
+    stepTeam.style.display = name === 'team' ? '' : 'none';
+    stepDomain.style.display = name === 'domain' ? '' : 'none';
+    stepStatements.style.display = name === 'statements' ? '' : 'none';
+    stepDone.style.display = name === 'done' ? '' : 'none';
+    window.scrollTo({ top: 0 });
+  }
+
+  /* ---- build the team dropdown ---- */
+  TEAM_NAMES.slice().sort(function (a, b) { return a.localeCompare(b); }).forEach(function (name) {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    teamSelect.appendChild(opt);
+  });
+  teamSelect.addEventListener('change', function () {
+    teamContinueBtn.disabled = !teamSelect.value;
+  });
+
+  /* ---- restore team on refresh ---- */
+  try {
+    const savedTeam = sessionStorage.getItem(SESSION_KEY);
+    if (savedTeam && TEAM_NAMES.indexOf(savedTeam) > -1) {
+      teamSelect.value = savedTeam;
+      teamContinueBtn.disabled = false;
+    }
+  } catch (e) {}
+
+  /* ---- step 1: continue with chosen team ---- */
+  teamContinueBtn.addEventListener('click', async function () {
+    if (!teamSelect.value) return;
+    currentTeam = teamSelect.value;
+    try { sessionStorage.setItem(SESSION_KEY, currentTeam); } catch (e) {}
+    teamChip1.textContent = currentTeam;
+    teamChip2.textContent = currentTeam;
+    renderDomains();
+    await loadExistingPick();
+    showStep('domain');
+  });
+
+  changeTeamBtn.addEventListener('click', function () {
+    currentTeam = null;
+    currentDomain = null;
+    selected = null;
+    try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+    teamSelect.value = '';
+    teamContinueBtn.disabled = true;
+    existingPickBanner.style.display = 'none';
+    showStep('team');
+  });
+
+  /* ---- show a team's existing confirmed pick, if any ---- */
+  async function loadExistingPick() {
+    let existing = null;
+    if (supabaseClient) {
+      try {
+        const { data, error } = await supabaseClient
+          .from('problem_picks_round2')
+          .select('domain, statement_text')
+          .eq('team_name', currentTeam)
+          .maybeSingle();
+        if (!error && data) existing = data;
+      } catch (e) {}
+    }
+    if (!existing) {
+      const local = getLocalPicks().find(function (p) { return p.team_name === currentTeam; });
+      if (local) existing = local;
+    }
+    if (existing) {
+      existingPickLabel.textContent = existing.domain + ' -> ' + splitStatement(existing.statement_text).title;
+      existingPickBanner.style.display = 'flex';
+    } else {
+      existingPickBanner.style.display = 'none';
+    }
+  }
+
+  /* ---- step 2: domain grid ---- */
+  function renderDomains() {
+    domainGrid.innerHTML = '';
+    DOMAINS.forEach(function (domain) {
+      const card = document.createElement('div');
+      card.className = 'domain-card';
+      card.innerHTML =
+        '<div class="domain-name">' + escapeHtml(domain.name) + '</div>' +
+        '<div class="domain-foot"><span class="domain-count">' + domain.statements.length + ' statements</span>' +
+        '<svg class="domain-go" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>';
+      card.addEventListener('click', function () { openDomain(domain); });
+      domainGrid.appendChild(card);
+    });
+  }
+
+  /* ---- step 3: statements for a domain ---- */
+  function openDomain(domain) {
+    currentDomain = domain;
+    selected = null;
+    confirmBar.style.display = 'none';
+    offlineBanner.style.display = 'none';
+    statementsDomainName.textContent = domain.name;
+    statementList.innerHTML = '';
+    domain.statements.forEach(function (text, idx) {
+      const parts = splitStatement(text);
+      const card = document.createElement('div');
+      card.className = 'statement-card';
+      card.dataset.index = idx;
+      card.innerHTML =
+        '<span class="statement-radio"></span>' +
+        '<div><div class="statement-id">' + domain.id + '-' + (idx + 1) + '</div>' +
+        '<div class="statement-title">' + escapeHtml(parts.title) + '</div>' +
+        '<div class="statement-body">' + escapeHtml(parts.body) + '</div></div>';
+      card.addEventListener('click', function () { selectStatement(domain, idx, text, card); });
+      statementList.appendChild(card);
+    });
+    showStep('statements');
+  }
+
+  function selectStatement(domain, idx, text, cardEl) {
+    const parts = splitStatement(text);
+    selected = { domain: domain.name, index: idx, id: domain.id + '-' + (idx + 1), title: parts.title, text: text };
+    statementList.querySelectorAll('.statement-card').forEach(function (c) { c.classList.remove('selected'); });
+    if (cardEl) cardEl.classList.add('selected');
+    confirmBarText.textContent = domain.name + ' -> ' + parts.title;
+    confirmBar.style.display = 'flex';
+  }
+
+  backToDomainsBtn.addEventListener('click', function () {
+    selected = null;
+    confirmBar.style.display = 'none';
+    showStep('domain');
+  });
+
+  /* ---- confirm / save ---- */
+  confirmBtn.addEventListener('click', async function () {
+    if (!selected || !currentTeam) return;
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Saving...';
+    offlineBanner.style.display = 'none';
+
+    const pickRow = {
+      team_name: currentTeam,
+      domain: selected.domain,
+      statement_id: selected.id,
+      statement_text: selected.text,
+    };
+
+    let saved = false;
+    if (supabaseClient) {
+      try {
+        const { error } = await supabaseClient
+          .from('problem_picks_round2')
+          .upsert(pickRow, { onConflict: 'team_name' });
+        if (!error) saved = true;
+      } catch (e) {}
+    }
+    saveLocalPick(pickRow);
+
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = 'Confirm this statement';
+
+    if (!saved && supabaseClient) {
+      // Couldn't reach the server — keep the team on this screen with a warning
+      // rather than telling them they're locked in when the server hasn't stored it.
+      offlineBanner.style.display = 'flex';
+      return;
+    }
+
+    stepDoneTeam.textContent = currentTeam;
+    doneStatement.textContent = selected.domain + '  ->  ' + selected.title;
+    showStep('done');
+  });
+
+  changeSelectionBtn.addEventListener('click', function () {
+    selected = null;
+    confirmBar.style.display = 'none';
+    showStep('domain');
+  });
+
+  /* ---- resync any locally-queued pick once back online ---- */
+  window.addEventListener('online', async function () {
+    if (!supabaseClient) return;
+    const pending = getLocalPicks();
+    for (const p of pending) {
+      try { await supabaseClient.from('problem_picks_round2').upsert(p, { onConflict: 'team_name' }); } catch (e) {}
+    }
+  });
+
+  showStep('team');
+});
+</script>
+</body>
+</html>
