@@ -278,11 +278,6 @@ select.team-select option { background: var(--ink-2); color: var(--bone); }
 
       <div class="statement-list" id="statementList"></div>
 
-      <div class="notice notice--info" id="offlineBanner" style="display:none; margin-top:18px;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <span>Saved on this device &mdash; couldn't reach the server yet. It'll sync automatically once you're back online. If the event is starting, tell a coordinator your pick as a backup.</span>
-      </div>
-
       <div class="confirm-bar" id="confirmBar" style="display:none;">
         <div>
           <div class="confirm-bar__label">Selected statement</div>
@@ -420,7 +415,6 @@ document.addEventListener('DOMContentLoaded', function () {
     'HEKT',
   ];
 
-  const LOCAL_KEY = 'solvix_ps_r2_v1';
   const SESSION_KEY = 'solvix_ps_r2_team';
 
   const notLiveCard = document.getElementById('notLiveCard');
@@ -443,7 +437,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const confirmBar = document.getElementById('confirmBar');
   const confirmBarText = document.getElementById('confirmBarText');
   const confirmBtn = document.getElementById('confirmBtn');
-  const offlineBanner = document.getElementById('offlineBanner');
   const stepDoneTeam = document.getElementById('doneTeam');
   const doneStatement = document.getElementById('doneStatement');
   
@@ -461,7 +454,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (config && config.url && config.anonKey && window.supabase) {
       supabaseClient = window.supabase.createClient(config.url, config.anonKey);
     }
-  } catch (e) { /* fall back to local-only mode below */ }
+  } catch (e) { /* Supabase remains unavailable */ }
 
   /* ---- state ---- */
   let currentTeam = null;      // team name string
@@ -478,24 +471,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const i = text.indexOf(': ');
     if (i === -1) return { title: text, body: '' };
     return { title: text.slice(0, i), body: text.slice(i + 2) };
-  }
-
-  function getLocalPicks() {
-    try { return JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]'); } catch (e) { return []; }
-  }
-  function saveLocalPick(pick) {
-    try {
-      const all = getLocalPicks().filter(function (p) { return p.team_name !== pick.team_name; });
-      all.push(pick);
-      localStorage.setItem(LOCAL_KEY, JSON.stringify(all));
-    } catch (e) { /* ignore quota errors */ }
-  }
-
-  function removeLocalPick(teamName) {
-    try {
-      const remaining = getLocalPicks().filter(function (p) { return p.team_name !== teamName; });
-      localStorage.setItem(LOCAL_KEY, JSON.stringify(remaining));
-    } catch (e) { /* ignore storage errors */ }
   }
 
   /* ---- step navigation ---- */
@@ -558,34 +533,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---- show a team's existing confirmed pick, if any ---- */
   async function loadExistingPick() {
-    let existing = null;
-    let serverCheckSucceeded = false;
-    if (supabaseClient) {
-      try {
-        const { data, error } = await supabaseClient
-          .from('problem_picks_round2')
-          .select('domain, statement_text')
-          .eq('team_name', currentTeam)
-          .maybeSingle();
-        if (!error) {
-          serverCheckSucceeded = true;
-          if (data) existing = data;
-        }
-      } catch (e) {}
+    if (!supabaseClient) {
+      existingPickBanner.style.display = 'none';
+      return null;
     }
-    // Supabase is the source of truth. Clear stale local data only after a
-    // successful server check confirms that the row no longer exists.
-    if (supabaseClient && serverCheckSucceeded) {
-      if (!existing) removeLocalPick(currentTeam);
-    } else if (!supabaseClient) {
-      const local = getLocalPicks().find(function (p) { return p.team_name === currentTeam; });
-      if (local) existing = local;
+
+    try {
+      const { data, error } = await supabaseClient
+        .from('problem_picks_round2')
+        .select('domain, statement_text')
+        .eq('team_name', currentTeam)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        existingPickLabel.textContent = data.domain + ' -> ' + splitStatement(data.statement_text).title;
+        existingPickBanner.style.display = 'flex';
+        return data;
+      }
+    } catch (e) {
+      existingPickBanner.style.display = 'none';
     }
-    if (existing) {
-      existingPickLabel.textContent = existing.domain + ' -> ' + splitStatement(existing.statement_text).title;
-      existingPickBanner.style.display = 'flex';
-      return existing;
-    }
+
     existingPickBanner.style.display = 'none';
     return null;
   }
@@ -649,7 +619,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!selected || !currentTeam) return;
     confirmBtn.disabled = true;
     confirmBtn.textContent = 'Saving...';
-    offlineBanner.style.display = 'none';
 
     const pickRow = {
       team_name: currentTeam,
@@ -667,15 +636,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!error) saved = true;
       } catch (e) {}
     }
-    saveLocalPick(pickRow);
 
     confirmBtn.disabled = false;
     confirmBtn.textContent = 'Confirm this statement';
 
-    if (!saved && supabaseClient) {
-      // Couldn't reach the server — keep the team on this screen with a warning
-      // rather than telling them they're locked in when the server hasn't stored it.
-      offlineBanner.style.display = 'flex';
+    if (!saved) {
+      alert('Could not save your selection. Please check the connection and try again.');
       return;
     }
 
