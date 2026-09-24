@@ -142,7 +142,6 @@ document.addEventListener('DOMContentLoaded', function () {
   // the coordinator passcode is ever changed there.
   const ADMIN_PASSCODES = ['solvix2026', 'admin@solvix', 'solvixadmin'];
   const SESSION_KEY = 'solvix_ps_admin_session';
-  const LOCAL_PICKS_KEY = 'solvix_ps_r2_v1';
 
   // Paste the SAME team-name list you put in problems.html here, so this view
   // can show how many teams still haven't picked and which ones. Leave it empty
@@ -238,10 +237,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   refreshBtn.addEventListener('click', loadAll);
 
-  function getLocalPicks() {
-    try { return JSON.parse(localStorage.getItem(LOCAL_PICKS_KEY) || '[]'); } catch (e) { return []; }
-  }
-
   let lastPicks = [];
 
   async function loadAll() {
@@ -256,14 +251,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!error && Array.isArray(data)) picks = data;
       } catch (e) {}
     }
-
-    // Merge in anything only saved locally on this device (e.g. captured while offline).
-    const local = getLocalPicks();
-    local.forEach(function (lp) {
-      if (!picks.some(function (p) { return p.team_name === lp.team_name; })) {
-        picks.push({ team_name: lp.team_name, domain: lp.domain, statement_id: lp.statement_id, statement_text: lp.statement_text, picked_at: null, updated_at: null, _localOnly: true });
-      }
-    });
 
     lastPicks = picks;
     renderStats(picks);
